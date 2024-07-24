@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase-config";
-import { addDoc, collection } from "firebase/firestore";
+import { setDoc, doc } from "firebase/firestore";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -10,15 +10,15 @@ const Register: React.FC = () => {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const userRef = collection(db, "users");
     const userCredenital = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
     if (userCredenital.user) {
+      const userRef = doc(db, "users", userCredenital.user.uid);
       await updateProfile(userCredenital.user, { displayName: username });
-      await addDoc(userRef, { email: email, name: username });
+      await setDoc(userRef, { email: email, name: username });
     }
   }
 
