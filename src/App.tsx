@@ -11,6 +11,7 @@ import Navbar from "./components/Navbar";
 import Chat from "./components/Chat";
 import { doc, getDoc } from "firebase/firestore";
 import { setInvites } from "./features/invitesSlice";
+import InviteList from "./components/lists/InviteList";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -38,7 +39,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<div className="w-[15%] rounded-lg text-white">Chats</div>} />
             <Route path="/friends" element={<div className="w-[15%] rounded-lg text-white">Friends</div>} />
-            <Route path="/invites" element={<div className="w-[15%] rounded-lg text-white">Invites</div>} />
+            <Route path="/invites" element={<InviteList />} />
             <Route path="*" element={<div className="w-[15%] rounded-lg text-white">Chats</div>} />
           </Routes>
           <Chat />

@@ -1,6 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type UserData from "../types/UserData";
 
-const initialState = {
+interface InitialStateInvite {
+  value: UserData[]
+}
+
+const initialState: InitialStateInvite = {
   value: []
 };
 
