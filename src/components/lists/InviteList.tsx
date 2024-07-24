@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ListStyleTemplate from "./ListStyleTemplate";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  onSnapshot,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../firebase-config";
+import { setInvites } from "../../features/invitesSlice";
 
 const InviteList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const invites = useSelector((state: RootState) => state.invites.value);
+  const dispatch = useDispatch();
 
   async function handleAccept(invite: UserData): Promise<void> {
     //update current user profile
@@ -28,6 +36,20 @@ const InviteList: React.FC = () => {
       invites: arrayRemove(invite),
     });
   }
+
+  useEffect(() => {
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(userRef, (snapshot) => {
+      if (snapshot.exists()) {
+        dispatch(setInvites(snapshot.data().invites));
+        console.log("new invite!");
+      } else {
+        console.log("no such document");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <ListStyleTemplate>
