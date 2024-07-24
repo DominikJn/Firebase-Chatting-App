@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { RootState } from "../store";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
+import Searchbar from "./Searchbar";
 
 const Header: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -14,6 +15,7 @@ const Header: React.FC = () => {
   return (
     <header className="p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
       <div>ChatApp</div>
+      <Searchbar />
       <div className="flex items-center gap-4">
         {user.name ? (
           <>
