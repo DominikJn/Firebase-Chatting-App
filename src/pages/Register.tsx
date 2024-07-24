@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase-config";
-import { addDoc, collection } from "firebase/firestore/lite";
+import { addDoc, collection } from "firebase/firestore";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
