@@ -1,18 +1,33 @@
-import React from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import { auth } from "../firebase-config";
 
 const Login: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    await signInWithEmailAndPassword(auth, email, password)
+  }
+
   return (
     <div className="h-full grid place-items-center">
-      <form className="bg-slate-900 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl">
+      <form
+        onSubmit={(e) => handleSubmit(e)}
+        className="bg-slate-900 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl"
+      >
         <h1 className="text-center text-5xl">Login</h1>
         <input
           type="email"
           placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
         />
         <input
           type="text"
           placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
         />
         <button
