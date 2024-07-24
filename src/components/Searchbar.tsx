@@ -5,22 +5,29 @@ import {
   orderBy,
   startAt,
   query,
+  doc,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { auth, db } from "../firebase-config";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
-interface UserList {
+interface User {
   id: string;
   name: string;
 }
 
 const Searchbar: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user.value);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [userList, setUserList] = useState<UserList[]>([]);
+  const [userList, setUserList] = useState<User[]>([]);
   const [isListVisible, setListVisible] = useState<boolean>(false);
-  const hideList = (): void => setListVisible(false);
-  const showList = (): void => setListVisible(true);
+  //set small timeout to prevent bluring from preventing sendInvite() click event
+  const hideList = (): NodeJS.Timeout => setTimeout(() => setListVisible(false), 200);
+  const showList = (): NodeJS.Timeout => setTimeout(() => setListVisible(true), 200);
 
   async function search() {
     try {
@@ -45,6 +52,13 @@ const Searchbar: React.FC = () => {
     }
   }
 
+  async function sendInvite(searchedUser: User): Promise<void> {
+    const userRef = doc(db, "users", searchedUser.id);
+    await updateDoc(userRef, {
+      invites: arrayUnion({ name: user.name, id: user.uid }),
+    });
+  }
+
   useEffect(() => {
     if (searchValue) search();
 
@@ -64,9 +78,15 @@ const Searchbar: React.FC = () => {
       <CiSearch />
       {isListVisible && (
         <div className="absolute top-[50px] left-0 w-full p-3 border-solid border bg-slate-900">
-            {userList.map((user, index) => (
-                <div key={`${user.id}-${index}`}>{user.name}</div>
-            ))}
+          {userList.map((searchedUser, index) => (
+            <div
+              key={`${searchedUser.id}-${index}`}
+              className="flex justify-between border-solid border-b"
+            >
+              <div>{searchedUser.name}</div>
+              <button onClick={() => sendInvite(searchedUser)} className="text-3xl">+</button>
+            </div>
+          ))}
         </div>
       )}
     </div>

@@ -3,20 +3,25 @@ import Header from "./components/Header";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { Route, Routes } from "react-router";
-import { auth } from "./firebase-config";
+import { auth, db } from "./firebase-config";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { login, logout } from "./features/userSlice";
 import Navbar from "./components/Navbar";
 import Chat from "./components/Chat";
+import { doc, getDoc } from "firebase/firestore";
+import { setInvites } from "./features/invitesSlice";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
+        const userRef = doc(db, 'users', user.uid)
+        const docSnap = await getDoc(userRef)
+        dispatch(setInvites(docSnap.data()?.invites))
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {
         dispatch(logout())
