@@ -14,6 +14,7 @@ import { setInvites } from "./features/invitesSlice";
 import { setFriends } from "./features/friendsSlice";
 import InviteList from "./components/lists/InviteList";
 import FriendList from "./components/lists/FriendList";
+import ChatList from "./components/lists/ChatList";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -40,10 +41,10 @@ const App: React.FC = () => {
         <div className="h-full p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
           <Navbar />
           <Routes>
-            <Route path="/" element={<div className="w-[15%] rounded-lg text-white">Chats</div>} />
+            <Route path="/" element={<ChatList />} />
             <Route path="/friends" element={<FriendList />} />
             <Route path="/invites" element={<InviteList />} />
-            <Route path="*" element={<div className="w-[15%] rounded-lg text-white">Chats</div>} />
+            <Route path="*" element={<ChatList />} />
           </Routes>
           <Chat />
         </div>

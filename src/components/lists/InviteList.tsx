@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
 import {
+  addDoc,
   arrayRemove,
   arrayUnion,
+  collection,
   doc,
   onSnapshot,
   updateDoc,
@@ -28,6 +30,14 @@ const InviteList: React.FC = () => {
     await updateDoc(doc(db, "users", invite.id), {
       friends: arrayUnion({ name: user.name, id: user.uid }),
     });
+    //add chat between users
+    await addDoc(collection(db, 'chats'), {
+      userIds: [user.uid, invite.id],
+      users: [
+        { name: user.name, id: user.uid },
+        { name: invite.name, id: invite.id },
+      ]
+    })
   }
 
   async function handleReject(invite: UserData): Promise<void> {
