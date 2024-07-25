@@ -18,7 +18,12 @@ const Register: React.FC = () => {
     if (userCredenital.user) {
       const userRef = doc(db, "users", userCredenital.user.uid);
       await updateProfile(userCredenital.user, { displayName: username });
-      await setDoc(userRef, { email: email, name: username });
+      await setDoc(userRef, {
+        email: email,
+        name: username,
+        friends: [],
+        invites: [],
+      });
     }
   }
 
