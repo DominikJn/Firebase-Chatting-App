@@ -1,14 +1,26 @@
-import React from 'react'
-import type MessageData from '../types/MessageData'
+import React from "react";
+import type MessageData from "../types/MessageData";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 interface MessageProps {
-    message: MessageData
+  message: MessageData;
 }
 
 const Message: React.FC<MessageProps> = ({ message }) => {
+  const user = useSelector((state: RootState) => state.user.value);
+  const isCurrentUserMessage = message.userId === user.uid;
   return (
-    <div>{message.text}</div>
-  )
-}
+    <div
+      className={`w-1/2 ${
+        isCurrentUserMessage
+          ? "bg-slate-800 text-white self-end"
+          : "bg-gray-200"
+      } text-xl p-4 rounded-lg shadow-lg`}
+    >
+      {message.text}
+    </div>
+  );
+};
 
-export default Message
+export default Message;
