@@ -5,29 +5,26 @@ import {
   orderBy,
   startAt,
   query,
-  doc,
-  updateDoc,
-  arrayUnion,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
 import { auth, db } from "../firebase-config";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
-
-interface User {
-  id: string;
-  name: string;
-}
+import type UserData from "../types/UserData";
+import SearchField from "./SearchField";
 
 const Searchbar: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.value);
   const [searchValue, setSearchValue] = useState<string>("");
-  const [userList, setUserList] = useState<User[]>([]);
+  const [userList, setUserList] = useState<UserData[]>([]);
   const [isListVisible, setListVisible] = useState<boolean>(false);
   //set small timeout to prevent bluring from preventing sendInvite() click event
   const hideList = (): NodeJS.Timeout => setTimeout(() => setListVisible(false), 200);
   const showList = (): NodeJS.Timeout => setTimeout(() => setListVisible(true), 200);
+
+  useEffect(() => {
+    if (searchValue) search();
+
+    searchValue ? setListVisible(true) : setListVisible(false);
+  }, [searchValue]);
 
   async function search() {
     try {
@@ -52,19 +49,6 @@ const Searchbar: React.FC = () => {
     }
   }
 
-  async function sendInvite(searchedUser: User): Promise<void> {
-    const userRef = doc(db, "users", searchedUser.id);
-    await updateDoc(userRef, {
-      invites: arrayUnion({ name: user.name, id: user.uid }),
-    });
-  }
-
-  useEffect(() => {
-    if (searchValue) search();
-
-    searchValue ? setListVisible(true) : setListVisible(false);
-  }, [searchValue]);
-
   return (
     <div className="flex items-center border-solid border py-2 px-3 rounded-full relative">
       <input
@@ -78,14 +62,11 @@ const Searchbar: React.FC = () => {
       <CiSearch />
       {isListVisible && (
         <div className="absolute top-[50px] left-0 w-full p-3 border-solid border bg-slate-900">
-          {userList.map((searchedUser, index) => (
-            <div
+          {userList.map((searchedUser: UserData, index: number) => (
+            <SearchField
               key={`${searchedUser.id}-${index}`}
-              className="flex justify-between border-solid border-b"
-            >
-              <div>{searchedUser.name}</div>
-              <button onClick={() => sendInvite(searchedUser)} className="text-3xl">+</button>
-            </div>
+              searchedUser={searchedUser}
+            />
           ))}
         </div>
       )}
