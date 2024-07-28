@@ -15,6 +15,7 @@ import { setFriends } from "./features/friendsSlice";
 import InviteList from "./components/lists/InviteList";
 import FriendList from "./components/lists/FriendList";
 import ChatList from "./components/lists/ChatList";
+import Sidebar from "./components/Sidebar";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -23,13 +24,13 @@ const App: React.FC = () => {
   useEffect(() => {
     auth.onAuthStateChanged(async (user) => {
       if (user) {
-        const userRef = doc(db, 'users', user.uid)
-        const docSnap = await getDoc(userRef)
-        dispatch(setInvites(docSnap.data()?.invites))
-        dispatch(setFriends(docSnap.data()?.friends))
+        const userRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(userRef);
+        dispatch(setInvites(docSnap.data()?.invites));
+        dispatch(setFriends(docSnap.data()?.friends));
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {
-        dispatch(logout())
+        dispatch(logout());
       }
     });
   }, []);
@@ -40,12 +41,14 @@ const App: React.FC = () => {
       {user.name ? (
         <div className="h-full p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
           <Navbar />
-          <Routes>
-            <Route path="/" element={<ChatList />} />
-            <Route path="/friends" element={<FriendList />} />
-            <Route path="/invites" element={<InviteList />} />
-            <Route path="*" element={<ChatList />} />
-          </Routes>
+          <Sidebar>
+            <Routes>
+              <Route path="/" element={<ChatList />} />
+              <Route path="/friends" element={<FriendList />} />
+              <Route path="/invites" element={<InviteList />} />
+              <Route path="*" element={<ChatList />} />
+            </Routes>
+          </Sidebar>
           <Chat />
         </div>
       ) : (

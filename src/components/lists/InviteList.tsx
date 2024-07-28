@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
-import ListStyleTemplate from "./ListStyleTemplate";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
 import {
@@ -9,16 +8,13 @@ import {
   arrayUnion,
   collection,
   doc,
-  onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
-import { setInvites } from "../../features/invitesSlice";
 
 const InviteList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const invites = useSelector((state: RootState) => state.invites.value);
-  const dispatch = useDispatch();
 
   async function handleAccept(invite: UserData): Promise<void> {
     //update current user profile
@@ -31,13 +27,13 @@ const InviteList: React.FC = () => {
       friends: arrayUnion({ name: user.name, id: user.uid }),
     });
     //add chat between users
-    await addDoc(collection(db, 'chats'), {
+    await addDoc(collection(db, "chats"), {
       userIds: [user.uid, invite.id],
       users: [
         { name: user.name, id: user.uid },
         { name: invite.name, id: invite.id },
-      ]
-    })
+      ],
+    });
   }
 
   async function handleReject(invite: UserData): Promise<void> {
@@ -47,22 +43,8 @@ const InviteList: React.FC = () => {
     });
   }
 
-  useEffect(() => {
-    const userRef = doc(db, "users", user.uid);
-    const unsubscribe = onSnapshot(userRef, (snapshot) => {
-      if (snapshot.exists()) {
-        dispatch(setInvites(snapshot.data().invites));
-        console.log("new invite!");
-      } else {
-        console.log("no such document");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   return (
-    <ListStyleTemplate>
+    <>
       <h2 className="text-center text-2xl">Invites</h2>
       {invites.map((invite, index) => (
         <div
@@ -76,7 +58,7 @@ const InviteList: React.FC = () => {
           </div>
         </div>
       ))}
-    </ListStyleTemplate>
+    </>
   );
 };
 
