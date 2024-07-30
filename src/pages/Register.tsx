@@ -24,6 +24,8 @@ const Register: React.FC = () => {
         friends: [],
         invites: [],
       });
+      //refresh page after signing up to make App.tsx useEffect work
+      location.replace("/");
     }
   }
 
