@@ -10,14 +10,14 @@ const Register: React.FC = () => {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const userCredenital = await createUserWithEmailAndPassword(
+    const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-    if (userCredenital.user) {
-      const userRef = doc(db, "users", userCredenital.user.uid);
-      await updateProfile(userCredenital.user, { displayName: username });
+    if (userCredential.user) {
+      const userRef = doc(db, "users", userCredential.user.uid);
+      await updateProfile(userCredential.user, { displayName: username });
       await setDoc(userRef, {
         email: email,
         name: username,
@@ -56,7 +56,7 @@ const Register: React.FC = () => {
           type="submit"
           className="border-solid border rounded-lg p-3 active:bg-white active:text-slate-800"
         >
-          Login
+          Register
         </button>
       </form>
     </div>
