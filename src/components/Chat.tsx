@@ -48,9 +48,11 @@ const Chat: React.FC = () => {
     return () => unsubscribe();
   }, [chat]);
 
-  async function sendMessage(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function sendMessage(
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> {
     e.preventDefault();
-    if(chat) {
+    if (chat) {
       await addDoc(messagesRef, {
         chat,
         createdAt: serverTimestamp(),
@@ -58,36 +60,44 @@ const Chat: React.FC = () => {
         user: user.name,
         userId: user.uid,
       });
-      setMessage('')
+      setMessage("");
     }
   }
 
   return (
     <div className="w-full p-4">
       <div className="bg-gray-100 w-full h-full flex flex-col">
-        <div className=" bg-slate-900 text-white text-2xl p-3">
-          Friend's name
-        </div>
-        <div className="h-full overflow-y-scroll flex flex-col gap-2 p-2">
-          {messages.map((message: MessageData, index: number) => (
-            <Message key={index} message={message} />
-          ))}
-        </div>
-        <form
-          onSubmit={(e) => sendMessage(e)}
-          className="bg-slate-900 p-2 flex justify-between items-center gap-6"
-        >
-          <input
-            type="text"
-            placeholder="Write a message..."
-            className="w-full h-full py-3 px-6 text-2xl rounded-lg"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-          <button type="submit" className="text-white text-4xl">
-            <IoSend />
-          </button>
-        </form>
+        {chat ? (
+          <>
+            <div className=" bg-slate-900 text-white text-2xl p-3">
+              Friend's name
+            </div>
+            <div className="h-full overflow-y-scroll flex flex-col gap-2 p-2">
+              {messages.map((message: MessageData, index: number) => (
+                <Message key={index} message={message} />
+              ))}
+            </div>
+            <form
+              onSubmit={(e) => sendMessage(e)}
+              className="bg-slate-900 p-2 flex justify-between items-center gap-6"
+            >
+              <input
+                type="text"
+                placeholder="Write a message..."
+                className="w-full h-full py-3 px-6 text-2xl rounded-lg"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <button type="submit" className="text-white text-4xl">
+                <IoSend />
+              </button>
+            </form>
+          </>
+        ) : (
+          <h2 className="text-center text-gray-500 text-2xl">
+            No chat selected
+          </h2>
+        )}
       </div>
     </div>
   );
