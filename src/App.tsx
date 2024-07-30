@@ -16,6 +16,7 @@ import InviteList from "./components/lists/InviteList";
 import FriendList from "./components/lists/FriendList";
 import ChatList from "./components/lists/ChatList";
 import Sidebar from "./components/Sidebar";
+import StartingPage from "./pages/StartingPage";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -53,6 +54,7 @@ const App: React.FC = () => {
         </div>
       ) : (
         <Routes>
+          <Route path="/" element={<StartingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
