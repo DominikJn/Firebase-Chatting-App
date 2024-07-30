@@ -49,7 +49,7 @@ const InviteList: React.FC = () => {
       {invites.map((invite, index) => (
         <div
           key={`${invite.id}-${index}`}
-          className="bg-slate-600 m-2 py-2 px-4 rounded-full flex justify-between"
+          className="bg-slate-600 rounded-full text-2xl cursor-pointer px-6 py-3 m-2 flex justify-between"
         >
           <span>{invite.name}</span>
           <div className="flex gap-3">

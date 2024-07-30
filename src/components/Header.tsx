@@ -15,7 +15,7 @@ const Header: React.FC = () => {
   return (
     <header className="p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
       <div>ChatApp</div>
-      <Searchbar />
+      {user.name && <Searchbar />}
       <div className="flex items-center gap-4">
         {user.name ? (
           <>

@@ -37,7 +37,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-r from-slate-800 to-slate-700 h-screen w-screen flex flex-col">
+    <div className="h-screen flex flex-col">
       <Header />
       {user.name ? (
         <div className="h-full p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">

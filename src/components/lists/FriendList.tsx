@@ -27,7 +27,7 @@ const FriendList: React.FC = () => {
       {friends.map((friend: UserData, index: number) => (
         <div
           key={`${friend.id}-${index}`}
-          className="bg-slate-600 m-2 py-2 px-4 rounded-full flex justify-between"
+          className="bg-slate-600 rounded-full text-2xl cursor-pointer px-6 py-3 m-2 flex flex-wrap justify-between gap-2"
         >
           <span>{friend.name}</span>
           <button onClick={() => handleFriendDelete(friend)}>x</button>
