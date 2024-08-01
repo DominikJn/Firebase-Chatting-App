@@ -5,10 +5,12 @@ import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import ChatShortcut from "./ChatShortcut";
 import ChatData from "../../types/ChatData";
+import CreateGroupModal from "../modals/CreateGroupModal";
 
 const ChatList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const [chats, setChats] = useState<ChatData[]>([]);
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const chatsRef = collection(db, "chats");
 
   useEffect(() => {
@@ -27,9 +29,18 @@ const ChatList: React.FC = () => {
 
     return () => unsubscribe();
   }, [user.uid]);
+
+  function handleGroupCreation(): void {
+    console.log("hej");
+  }
+
   return (
     <>
       <h2 className="text-center text-2xl">Chats</h2>
+      <div className="text-center text-gray-400">
+        {isModalOpen && <CreateGroupModal setModalOpen={setModalOpen} />}
+        <button onClick={() => setModalOpen(true)}>Create Chat +</button>
+      </div>
       {chats.map((chat, index) => (
         <ChatShortcut key={`${index}`} chat={chat} />
       ))}
