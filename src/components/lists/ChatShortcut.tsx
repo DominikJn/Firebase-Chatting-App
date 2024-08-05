@@ -6,6 +6,7 @@ import type ChatData from "../../types/ChatData";
 import UserData from "../../types/UserData";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import handleChatName from "../../utils/handleChatName";
 
 interface ChatShortcutProps {
   chat: ChatData;
@@ -21,11 +22,9 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
   async function handleClick(): Promise<void> {
     const docRef = doc(db, "users", user.uid);
     dispatch(selectChat(chat.id));
-    const alternativeChatName = chatMembers
-      .map((member) => member.name)
-      .join(", ");
-    //if chat has no name then display every chat member names
-    if (!chat.chatName) dispatch(setChatName(alternativeChatName));
+    //set chatName
+    const chatName = handleChatName(chat.chatName, chat.users);
+    dispatch(setChatName(chatName));
     //update last selected chat id in user doc
     await updateDoc(docRef, { lastSelectedChat: chat.id });
   }

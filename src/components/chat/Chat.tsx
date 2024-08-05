@@ -13,6 +13,7 @@ import MessageForm from "./MessageForm";
 import MessageContainer from "./MessageContainer";
 import ChatHeader from "./ChatHeader";
 import { setChatName } from "../../features/chatsSlice";
+import handleChatName from "../../utils/handleChatName";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -23,8 +24,11 @@ const Chat: React.FC = () => {
   useEffect(() => {
     async function fetchChatName(): Promise<void> {
       const docSnap = await getDoc(doc(db, "chats", chat.selectedChat));
-      const chatName: string = docSnap.data()?.chatName || "";
-      if (chatName) dispatch(setChatName(chatName));
+      const chatName = handleChatName(
+        docSnap.data()?.chatName,
+        docSnap.data()?.users
+      );
+      dispatch(setChatName(chatName));
     }
 
     fetchChatName();
