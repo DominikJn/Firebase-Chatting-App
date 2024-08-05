@@ -4,9 +4,11 @@ import { selectChat } from "../../features/chatsSlice";
 import { RootState } from "../../store";
 import type ChatData from "../../types/ChatData";
 import UserData from "../../types/UserData";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase-config";
 
 interface ChatShortcutProps {
-  chat: ChatData
+  chat: ChatData;
 }
 
 const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
@@ -16,9 +18,15 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
     (memmber: UserData) => memmber.name !== user.name
   );
 
+  async function handleClick(): Promise<void> {
+    const docRef = doc(db, "users", user.uid);
+    dispatch(selectChat(chat.id));
+    await updateDoc(docRef, { lastSelectedChat: chat.id });
+  }
+
   return (
     <div
-      onClick={() => dispatch(selectChat(chat.id))}
+      onClick={handleClick}
       className="bg-slate-600 rounded-full text-2xl cursor-pointer px-6 py-3 m-2 flex justify-between"
     >
       <p>

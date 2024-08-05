@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "./store";
 import { login, logout } from "./features/userSlice";
 import Navbar from "./components/Navbar";
-import Chat from "./components/Chat";
+import Chat from "./components/chat/Chat";
 import { doc, getDoc } from "firebase/firestore";
 import { setInvites } from "./features/invitesSlice";
 import { setFriends } from "./features/friendsSlice";
@@ -17,6 +17,7 @@ import FriendList from "./components/lists/FriendList";
 import ChatList from "./components/lists/ChatList";
 import Sidebar from "./components/Sidebar";
 import StartingPage from "./pages/StartingPage";
+import { selectChat } from "./features/chatsSlice";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -29,6 +30,7 @@ const App: React.FC = () => {
         const docSnap = await getDoc(userRef);
         dispatch(setInvites(docSnap.data()?.invites));
         dispatch(setFriends(docSnap.data()?.friends));
+        dispatch(selectChat(docSnap.data()?.lastSelectedChat));
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {
         dispatch(logout());
