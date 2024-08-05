@@ -28,9 +28,9 @@ const App: React.FC = () => {
       if (user) {
         const userRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(userRef);
-        dispatch(setInvites(docSnap.data()?.invites));
-        dispatch(setFriends(docSnap.data()?.friends));
-        dispatch(selectChat(docSnap.data()?.lastSelectedChat));
+        dispatch(setInvites(docSnap.data()?.invites || []));
+        dispatch(setFriends(docSnap.data()?.friends || []));
+        dispatch(selectChat(docSnap.data()?.lastSelectedChat || ""));
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {
         dispatch(logout());
