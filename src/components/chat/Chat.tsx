@@ -2,56 +2,38 @@ import React, { useEffect, useState } from "react";
 import {
   addDoc,
   collection,
-  onSnapshot,
-  orderBy,
-  query,
+  doc,
+  getDoc,
   serverTimestamp,
-  where,
 } from "firebase/firestore";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { db } from "../../firebase-config";
 import { RootState } from "../../store";
-import type MessageData from "../../types/MessageData";
 import MessageForm from "./MessageForm";
 import MessageContainer from "./MessageContainer";
 import ChatHeader from "./ChatHeader";
+import { setChatName } from "../../features/chatsSlice";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
-  const selectedChat = useSelector(
-    (state: RootState) => state.chats.value.selectedChat
-  );
-  const [messages, setMessages] = useState<MessageData[]>([]);
+  const chat = useSelector((state: RootState) => state.chats.value);
   const messagesRef = collection(db, "messages");
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const queryMessages = query(
-      messagesRef,
-      where("chat", "==", selectedChat),
-      orderBy("createdAt")
-    );
-    const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
-      const fetchedMessages: MessageData[] = [];
-      snapshot.forEach((doc) =>
-        fetchedMessages.push({
-          id: doc.id,
-          chat: doc.data().chat,
-          createdAt: doc.data().createdAt,
-          text: doc.data().text,
-          user: doc.data().user,
-          userId: doc.data().userId,
-        })
-      );
-      setMessages(fetchedMessages);
-    });
+    async function fetchChatName(): Promise<void> {
+      const docSnap = await getDoc(doc(db, "chats", chat.selectedChat));
+      const chatName: string = docSnap.data()?.chatName || "";
+      if (chatName) dispatch(setChatName(chatName));
+    }
 
-    return () => unsubscribe();
-  }, [selectedChat]);
+    fetchChatName();
+  }, [chat.selectedChat]);
 
   async function sendMessage(message: string): Promise<void> {
-    if (selectedChat) {
+    if (chat.selectedChat) {
       await addDoc(messagesRef, {
-        chat: selectedChat,
+        chat: chat.selectedChat,
         createdAt: serverTimestamp(),
         text: message,
         user: user.name,
@@ -63,8 +45,8 @@ const Chat: React.FC = () => {
   return (
     <div className="w-full p-4">
       <div className="bg-gray-100 w-full h-full flex flex-col">
-        <ChatHeader />
-        <MessageContainer messages={messages} />
+        <ChatHeader chatName={chat.chatName} />
+        <MessageContainer />
         <MessageForm sendMessage={sendMessage} />
       </div>
     </div>

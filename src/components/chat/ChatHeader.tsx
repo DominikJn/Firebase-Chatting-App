@@ -1,9 +1,13 @@
 import React from "react";
 
-const ChatHeader: React.FC = () => {
+interface ChatHeaderProps {
+  chatName: string;
+}
+
+const ChatHeader: React.FC<ChatHeaderProps> = ({ chatName }) => {
   return (
     <div className=" bg-slate-900 text-white text-2xl p-3 flex justify-between relative">
-      <span>Friend's name</span>
+      <span>{chatName}</span>
     </div>
   );
 };

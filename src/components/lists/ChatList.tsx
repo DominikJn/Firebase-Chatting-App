@@ -22,17 +22,13 @@ const ChatList: React.FC = () => {
       const fetchedChats: ChatData[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         users: doc.data().users,
+        chatName: doc.data().chatName,
       }));
-      console.log(fetchedChats);
       setChats(fetchedChats);
     });
 
     return () => unsubscribe();
   }, [user.uid]);
-
-  function handleGroupCreation(): void {
-    console.log("hej");
-  }
 
   return (
     <>
