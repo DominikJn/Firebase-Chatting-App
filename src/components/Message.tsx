@@ -16,7 +16,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
         isCurrentUserMessage
           ? "bg-slate-800 text-white self-end"
           : "bg-gray-200"
-      } text-xl p-4 rounded-lg shadow-lg`}
+      } text-xl px-4 py-8 rounded-lg shadow-lg break-all`}
     >
       {message.text}
     </div>
