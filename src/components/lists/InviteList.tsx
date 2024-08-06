@@ -2,15 +2,9 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import {
-  addDoc,
-  arrayRemove,
-  arrayUnion,
-  collection,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
+import createChatDoc from "../../utils/createChatDoc";
 
 const InviteList: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -27,13 +21,8 @@ const InviteList: React.FC = () => {
       friends: arrayUnion({ name: user.name, id: user.uid }),
     });
     //add chat between users
-    await addDoc(collection(db, "chats"), {
-      userIds: [user.uid, invite.id],
-      users: [
-        { name: user.name, id: user.uid },
-        { name: invite.name, id: invite.id },
-      ],
-    });
+    const users: UserData[] = [{ name: user.name, id: user.uid }, invite];
+    await createChatDoc(users);
   }
 
   async function handleReject(invite: UserData): Promise<void> {

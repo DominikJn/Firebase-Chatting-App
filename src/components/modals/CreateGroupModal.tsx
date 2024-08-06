@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import { addDoc, collection } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import createChatDoc from "../../utils/createChatDoc";
 
 interface CreateGroupModalProps {
   setModalOpen: (arg: boolean) => void;
@@ -38,37 +37,13 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
     }
   }
 
-  //   async function updateMultipleDocuments(
-  //     updates: UserData[],
-  //     chatId: string
-  //   ): Promise<void> {
-  //     const batch = writeBatch(db);
-
-  //     updates.forEach((update) => {
-  //       const docRef = doc(db, "users", update.id);
-  //       batch.update(docRef, { ["chats"]: arrayUnion(chatId) });
-  //     });
-
-  //     try {
-  //       await batch.commit();
-  //       console.log("Documents successfully updated!");
-  //     } catch (error) {
-  //       console.error("Error updating documents: ", error);
-  //     }
-  //   }
-
   async function handleGroupCreation(): Promise<void> {
     //create chat with chosen friends
-    const chatRef = collection(db, "chats");
     const finalUsers = [...chosenFriends, { name: user.name, id: user.uid }];
-    const userIds = finalUsers.map((user) => user.id);
     if (finalUsers.length > 2) {
-      await addDoc(chatRef, {
-        userIds,
-        users: finalUsers,
-      });
+      await createChatDoc(finalUsers)
     } else {
-        console.log('In order to create a group there must be more than 2 members!')
+      console.log("In order to create a group there must be more than 2 members!");
     }
   }
 
@@ -87,7 +62,7 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
         <ul className="flex gap-3 text-3xl">
           {filteredFriends.map((friend, index) => (
             <li
-            key={index}
+              key={index}
               className={`border-dashed border rounded-full w-fit py-1 px-3 flex gap-2 ${
                 chosenFriends.includes(friend) && "text-gray-400"
               }`}
