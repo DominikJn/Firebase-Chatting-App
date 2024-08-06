@@ -56,6 +56,7 @@ const App: React.FC = () => {
             users: data.users,
             chatName: data.chatName,
             lastMessage: data.lastMessage,
+            lastMessageTimestamp: data.lastMessageTimestamp
           });
         });
         dispatch(setChats(fetchedChats));
