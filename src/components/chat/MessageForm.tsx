@@ -10,8 +10,10 @@ const MessageForm: React.FC<MessageFormProps> = ({ sendMessage }) => {
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    sendMessage(message);
-    setMessage("");
+    if(message) {
+      sendMessage(message);
+      setMessage("");
+    }
   }
 
   return (
