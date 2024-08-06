@@ -32,7 +32,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
   return (
     <div
       onClick={handleClick}
-      className="bg-slate-600 rounded-full text-2xl cursor-pointer px-6 py-3 m-2 flex justify-between"
+      className="bg-slate-600 rounded-full text-2xl cursor-pointer px-3 py-3 m-2 flex justify-between"
     >
       <p>
         {chat.chatName ? (

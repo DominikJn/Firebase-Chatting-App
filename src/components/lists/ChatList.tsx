@@ -35,7 +35,7 @@ const ChatList: React.FC = () => {
       <h2 className="text-center text-2xl">Chats</h2>
       <div className="text-center text-gray-400">
         {isModalOpen && <CreateGroupModal setModalOpen={setModalOpen} />}
-        <button onClick={() => setModalOpen(true)}>Create Chat +</button>
+        <button onClick={() => setModalOpen(true)} className="hover:text-white duration-75">Create New Chat</button>
       </div>
       {chats.map((chat, index) => (
         <ChatShortcut key={`${index}`} chat={chat} />

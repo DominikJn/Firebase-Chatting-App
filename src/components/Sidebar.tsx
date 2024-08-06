@@ -29,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  return <div className="w-[15%] rounded-lg text-white">{children}</div>;
+  return <div className="min-w-[15%] rounded-lg text-white">{children}</div>;
 };
 
 export default Sidebar;
