@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Header from "./components/Header";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,11 +27,9 @@ import StartingPage from "./pages/StartingPage";
 import { selectChat } from "./features/chatsSlice";
 import { setChats } from "./features/chatsSlice";
 import type ChatData from "./types/ChatData";
-import ChatListeners from "./components/listeners/ChatsListener";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
-  const [chatIds, setChatIds] = useState<string[]>([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -51,15 +49,15 @@ const App: React.FC = () => {
         );
         const chatSnap = await getDocs(queryChats);
         const fetchedChats: ChatData[] = [];
-        chatSnap.forEach((doc) =>
+        chatSnap.forEach((doc) => {
+          const data = doc.data();
           fetchedChats.push({
             id: doc.id,
-            users: doc.data().users,
-            chatName: doc.data().chatName,
-          })
-        );
-        const extractedChatIds = fetchedChats.map((chat) => chat.id)
-        setChatIds(extractedChatIds);
+            users: data.users,
+            chatName: data.chatName,
+            lastMessage: data.lastMessage,
+          });
+        });
         dispatch(setChats(fetchedChats));
         //login user
         dispatch(login({ name: user.displayName, uid: user.uid }));
@@ -83,7 +81,6 @@ const App: React.FC = () => {
               <Route path="*" element={<ChatList />} />
             </Routes>
           </Sidebar>
-          <ChatListeners chatIds={chatIds} />
           <Chat />
         </div>
       ) : (

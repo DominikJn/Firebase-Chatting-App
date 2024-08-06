@@ -5,6 +5,8 @@ import {
   doc,
   onSnapshot,
   serverTimestamp,
+  Timestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import { db } from "../../firebase-config";
@@ -21,10 +23,10 @@ const Chat: React.FC = () => {
   const chat = useSelector((state: RootState) => state.chats.value);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
   const messagesRef = collection(db, "messages");
+  const chatRef = doc(db, "chats", chat.selectedChat);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const chatRef = doc(db, "chats", chat.selectedChat);
     //check for chat changes like chatName change etc.
     const unsubscribe = onSnapshot(chatRef, (snapshot) => {
       const chatName = handleChatName(
@@ -41,12 +43,18 @@ const Chat: React.FC = () => {
 
   async function sendMessage(message: string): Promise<void> {
     if (chat.selectedChat) {
+      //add new message doc
       await addDoc(messagesRef, {
         chat: chat.selectedChat,
         createdAt: serverTimestamp(),
         text: message,
         user: user.name,
         userId: user.uid,
+      });
+      //update last message field in chat doc
+      await updateDoc(chatRef, {
+        lastMessage: message,
+        lastMessageTimestamp: serverTimestamp(),
       });
     }
   }

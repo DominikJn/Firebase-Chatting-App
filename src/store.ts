@@ -1,16 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from './features/userSlice'
-import invitesReducer from './features/invitesSlice'
-import friendsReducer from './features/friendsSlice'
-import chatsReducer from './features/chatsSlice'
+import userReducer from "./features/userSlice";
+import invitesReducer from "./features/invitesSlice";
+import friendsReducer from "./features/friendsSlice";
+import chatsReducer from "./features/chatsSlice";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
     invites: invitesReducer,
     friends: friendsReducer,
-    chats: chatsReducer
+    chats: chatsReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({ serializableCheck: false }),
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
