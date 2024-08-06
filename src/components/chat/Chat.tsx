@@ -3,7 +3,7 @@ import {
   addDoc,
   collection,
   doc,
-  getDoc,
+  onSnapshot,
   serverTimestamp,
 } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,25 +14,30 @@ import MessageContainer from "./MessageContainer";
 import ChatHeader from "./ChatHeader";
 import { setChatName } from "../../features/chatsSlice";
 import handleChatName from "../../utils/handleChatName";
+import ChatOptions from "./ChatOptions";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const chat = useSelector((state: RootState) => state.chats.value);
+  const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
   const messagesRef = collection(db, "messages");
   const dispatch = useDispatch();
 
   useEffect(() => {
-    async function fetchChatName(): Promise<void> {
-      const docSnap = await getDoc(doc(db, "chats", chat.selectedChat));
+    const chatRef = doc(db, "chats", chat.selectedChat);
+    //check for chat changes like chatName change etc.
+    const unsubscribe = onSnapshot(chatRef, (snapshot) => {
       const chatName = handleChatName(
-        docSnap.data()?.chatName,
-        docSnap.data()?.users
+        snapshot.data()?.chatName,
+        snapshot.data()?.users
       );
       dispatch(setChatName(chatName));
-    }
+    });
 
-    fetchChatName();
+    return () => unsubscribe();
   }, [chat.selectedChat]);
+
+  const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 
   async function sendMessage(message: string): Promise<void> {
     if (chat.selectedChat) {
@@ -49,8 +54,12 @@ const Chat: React.FC = () => {
   return (
     <div className="w-full p-4">
       <div className="bg-gray-100 w-full h-full flex flex-col">
-        <ChatHeader chatName={chat.chatName} />
-        <MessageContainer />
+        <ChatHeader
+          chatName={chat.chatName}
+          areOptionsActive={areOptionsActive}
+          toggleChatOptions={toggleChatOptions}
+        />
+        {areOptionsActive ? <ChatOptions chat={chat} /> : <MessageContainer />}
         <MessageForm sendMessage={sendMessage} />
       </div>
     </div>
