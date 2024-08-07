@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
-import type MessageData from "../../types/MessageData";
-import Message from "../Message";
+import NormalMessage from "./messages/NormalMessage";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import {
-    collection,
-    onSnapshot,
-    orderBy,
-    query,
-    where,
-  } from "firebase/firestore";
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../../firebase-config";
+import ConfigMessage from "./messages/ConfigMessage";
+import type NormalMessageData from "../../types/message/MessageData";
 
 const MessageContainer: React.FC = () => {
   const chat = useSelector((state: RootState) => state.chats.value);
-  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [messages, setMessages] = useState<NormalMessageData[]>([]);
   const messagesRef = collection(db, "messages");
 
   useEffect(() => {
@@ -24,17 +25,11 @@ const MessageContainer: React.FC = () => {
       orderBy("createdAt")
     );
     const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
-      const fetchedMessages: MessageData[] = [];
-      snapshot.forEach((doc) =>
-        fetchedMessages.push({
-          id: doc.id,
-          chat: doc.data().chat,
-          createdAt: doc.data().createdAt,
-          text: doc.data().text,
-          user: doc.data().user,
-          userId: doc.data().userId,
-        })
-      );
+      const fetchedMessages: NormalMessageData[] = [];
+      snapshot.forEach((doc) => {
+        const data: NormalMessageData = { id: doc.id, ...doc.data() };
+        fetchedMessages.push(data);
+      });
       setMessages(fetchedMessages);
     });
 
@@ -43,9 +38,13 @@ const MessageContainer: React.FC = () => {
 
   return (
     <div className="h-full overflow-y-scroll flex flex-col gap-2 p-2">
-      {messages.map((message: MessageData, index: number) => (
-        <Message key={index} message={message} />
-      ))}
+      {messages.map((message: NormalMessageData, index: number) =>
+        message.type === "normal" ? (
+          <NormalMessage key={index} message={message} />
+        ) : (
+          <ConfigMessage key={index} message={message} />
+        )
+      )}
     </div>
   );
 };

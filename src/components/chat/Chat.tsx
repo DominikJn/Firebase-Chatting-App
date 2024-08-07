@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-  addDoc,
-  collection,
   doc,
   onSnapshot,
   serverTimestamp,
-  Timestamp,
   updateDoc,
 } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,12 +14,13 @@ import ChatHeader from "./ChatHeader";
 import { setChatName } from "../../features/chatsSlice";
 import handleChatName from "../../utils/handleChatName";
 import ChatOptions from "./ChatOptions";
+import createMessageDoc from "../../utils/createMessageDoc";
+import type NormalMessageData from "../../types/message/NormalMessageData";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const chat = useSelector((state: RootState) => state.chats.value);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const messagesRef = collection(db, "messages");
   const chatRef = doc(db, "chats", chat.selectedChat);
   const dispatch = useDispatch();
 
@@ -44,13 +42,14 @@ const Chat: React.FC = () => {
   async function sendMessage(message: string): Promise<void> {
     if (chat.selectedChat) {
       //add new message doc
-      await addDoc(messagesRef, {
+      const messageData: NormalMessageData = {
         chat: chat.selectedChat,
         createdAt: serverTimestamp(),
         text: message,
         user: user.name,
         userId: user.uid,
-      });
+      };
+      await createMessageDoc(messageData, "normal");
       //update last message field in chat doc
       await updateDoc(chatRef, {
         lastMessage: message,

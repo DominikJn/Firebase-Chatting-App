@@ -1,13 +1,14 @@
 import React from "react";
-import type MessageData from "../types/MessageData";
+import type NormalMessageData from "../../../types/message/NormalMessageData";
 import { useSelector } from "react-redux";
-import { RootState } from "../store";
+import { RootState } from "../../../store";
 
-interface MessageProps {
-  message: MessageData;
+interface NormalMessageProps {
+  message: NormalMessageData;
 }
 
-const Message: React.FC<MessageProps> = ({ message }) => {
+const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
+  console.log(message.type)
   const user = useSelector((state: RootState) => state.user.value);
   const isCurrentUserMessage = message.userId === user.uid;
   return (
@@ -23,4 +24,4 @@ const Message: React.FC<MessageProps> = ({ message }) => {
   );
 };
 
-export default Message;
+export default NormalMessage;

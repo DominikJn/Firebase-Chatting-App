@@ -1,7 +1,11 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { db } from "../../firebase-config";
 import { RiEditFill } from "react-icons/ri";
+import createMessageDoc from "../../utils/createMessageDoc";
+import type NormalMessageData from "../../types/message/NormalMessageData";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 interface ChatOptionsProps {
   chat: {
@@ -11,6 +15,7 @@ interface ChatOptionsProps {
 }
 
 const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
+  const user = useSelector((state: RootState) => state.user.value);
   const [inputValue, setInputValue] = useState<string>(chat.chatName);
 
   async function changeChatname(
@@ -20,6 +25,14 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
     await updateDoc(doc(db, "chats", chat.selectedChat), {
       chatName: inputValue,
     });
+    const messageData: NormalMessageData = {
+      chat: chat.selectedChat,
+      createdAt: serverTimestamp(),
+      text: `ChatName has been changed to ${inputValue}`,
+      user: user.name,
+      userId: user.uid,
+    };
+    await createMessageDoc(messageData, 'config');
   }
 
   return (
