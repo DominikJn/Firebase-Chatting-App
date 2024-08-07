@@ -27,6 +27,7 @@ import StartingPage from "./pages/StartingPage";
 import { selectChat } from "./features/chatsSlice";
 import { setChats } from "./features/chatsSlice";
 import type ChatData from "./types/ChatData";
+import ChatsListener from "./components/listeners/ChatsListener";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -41,25 +42,6 @@ const App: React.FC = () => {
         dispatch(setInvites(docSnap.data()?.invites || []));
         dispatch(setFriends(docSnap.data()?.friends || []));
         dispatch(selectChat(docSnap.data()?.lastSelectedChat || ""));
-        //fetch user chats
-        const chatRef = collection(db, "chats");
-        const queryChats = query(
-          chatRef,
-          where("userIds", "array-contains", user.uid)
-        );
-        const chatSnap = await getDocs(queryChats);
-        const fetchedChats: ChatData[] = [];
-        chatSnap.forEach((doc) => {
-          const data = doc.data();
-          fetchedChats.push({
-            id: doc.id,
-            users: data.users,
-            chatName: data.chatName,
-            lastMessage: data.lastMessage,
-            lastMessageTimestamp: data.lastMessageTimestamp
-          });
-        });
-        dispatch(setChats(fetchedChats));
         //login user
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {
@@ -82,6 +64,7 @@ const App: React.FC = () => {
               <Route path="*" element={<ChatList />} />
             </Routes>
           </Sidebar>
+          <ChatsListener />
           <Chat />
         </div>
       ) : (
