@@ -21,17 +21,20 @@ const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const chat = useSelector((state: RootState) => state.chats.value);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const chatRef = doc(db, "chats", chat.selectedChat);
+  const chatIdSegment = chat.selectedChat || "someranodmshit";
+  const chatRef = doc(db, "chats", chatIdSegment);
   const dispatch = useDispatch();
 
   useEffect(() => {
     //check for chat changes like chatName change etc.
     const unsubscribe = onSnapshot(chatRef, (snapshot) => {
-      const chatName = handleChatName(
-        snapshot.data()?.chatName,
-        snapshot.data()?.users
-      );
-      dispatch(setChatName(chatName));
+      if (snapshot.exists()) {
+        const chatName = handleChatName(
+          snapshot.data()?.chatName,
+          snapshot.data()?.users
+        );
+        dispatch(setChatName(chatName));
+      }
     });
 
     return () => unsubscribe();

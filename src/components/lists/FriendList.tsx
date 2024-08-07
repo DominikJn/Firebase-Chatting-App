@@ -30,11 +30,13 @@ const FriendList: React.FC = () => {
     //update current users's profile
     await updateDoc(doc(db, "users", user.uid), {
       friends: arrayRemove(friend),
+      lastSelectedChat: "",
     });
     //update deleted friend's profile
     const userAdjustedData = { name: user.name, id: user.uid };
     await updateDoc(doc(db, "users", friend.id), {
       friends: arrayRemove(userAdjustedData),
+      lastSelectedChat: "",
     });
     //delete chat between users
     const chatRef = collection(db, "chats");
