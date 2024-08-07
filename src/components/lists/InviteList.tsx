@@ -22,7 +22,7 @@ const InviteList: React.FC = () => {
     });
     //add chat between users
     const users: UserData[] = [{ name: user.name, id: user.uid }, invite];
-    await createChatDoc(users);
+    await createChatDoc(users, "single");
   }
 
   async function handleReject(invite: UserData): Promise<void> {

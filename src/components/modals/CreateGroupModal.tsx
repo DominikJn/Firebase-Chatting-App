@@ -41,9 +41,11 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
     //create chat with chosen friends
     const finalUsers = [...chosenFriends, { name: user.name, id: user.uid }];
     if (finalUsers.length > 2) {
-      await createChatDoc(finalUsers)
+      await createChatDoc(finalUsers, "group");
     } else {
-      console.log("In order to create a group there must be more than 2 members!");
+      console.log(
+        "In order to create a group there must be more than 2 members!"
+      );
     }
   }
 
