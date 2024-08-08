@@ -2,7 +2,7 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectChat, setChatName } from "../../features/chatsSlice";
 import { RootState } from "../../store";
-import type ChatData from "../../types/ChatData";
+import type ChatData from "../../types/chat/ChatData";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import handleChatName from "../../utils/handleChatName";

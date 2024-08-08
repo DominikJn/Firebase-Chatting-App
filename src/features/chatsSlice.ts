@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type ChatData from "../types/ChatData";
+import type ChatData from "../types/chat/ChatData";
 
 interface InitialStateChat {
   value: {

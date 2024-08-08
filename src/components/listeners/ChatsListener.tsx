@@ -6,7 +6,7 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import type ChatData from "../../types/ChatData";
+import type ChatData from "../../types/chat/ChatData";
 import { useDispatch, useSelector } from "react-redux";
 import { setChats } from "../../features/chatsSlice";
 import { db } from "../../firebase-config";

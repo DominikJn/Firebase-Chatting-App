@@ -1,8 +1,8 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import type UserData from "../types/UserData";
 import { db } from "../firebase-config";
-import type ChatData from "../types/ChatData";
-import type ChatGroupType from "../types/ChatGroupType";
+import type ChatData from "../types/chat/ChatData";
+import type ChatGroupType from "../types/chat/ChatGroupType";
 import createMessageDoc from "./createMessageDoc";
 import ConfigMessageData from "../types/message/ConfigMesageData";
 
@@ -11,10 +11,15 @@ async function createChatDoc(
   type: ChatGroupType
 ): Promise<void> {
   const userIds = users.map((user) => user.id);
+  //set admins based on group type
+  //if chat is single chat then both users will be admins
+  //if chat is a group chat then only user that created the group will be admin (his index in array is always last)
+  const admins = type === "group" ? [users[users.length - 1]?.id] : userIds;
   //create chat
   const chatDoc: ChatData = {
     userIds,
     users,
+    admins,
     chatName: "",
     type,
     lastMessage: "",

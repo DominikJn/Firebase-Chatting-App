@@ -16,10 +16,15 @@ import handleChatName from "../../utils/handleChatName";
 import ChatOptions from "./ChatOptions";
 import createMessageDoc from "../../utils/createMessageDoc";
 import type NormalMessageData from "../../types/message/NormalMessageData";
+import type ChatData from "../../types/chat/ChatData";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const chat = useSelector((state: RootState) => state.chats.value);
+  const selectedChatData: ChatData = chat.chats.filter(
+    (innerChat) => innerChat.id === chat.selectedChat
+  )[0];
+  console.log(selectedChatData);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
   const chatIdSegment = chat.selectedChat || "someranodmshit";
   const chatRef = doc(db, "chats", chatIdSegment);
@@ -69,7 +74,11 @@ const Chat: React.FC = () => {
           areOptionsActive={areOptionsActive}
           toggleChatOptions={toggleChatOptions}
         />
-        {areOptionsActive ? <ChatOptions chat={chat} /> : <MessageContainer />}
+        {areOptionsActive ? (
+          <ChatOptions chat={selectedChatData} />
+        ) : (
+          <MessageContainer />
+        )}
         <MessageForm sendMessage={sendMessage} />
       </div>
     </div>
