@@ -35,7 +35,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
       className="cursor-pointer px-2 py-2 border-solid border-b flex flex-wrap"
     >
       <div className="text-3xl flex items-center px-2 text-slate-700">
-        {chat.type === "single" ? <HiUserGroup /> : <CgProfile />}
+        {chat.type === "single" ? <CgProfile /> : <HiUserGroup />}
       </div>
       <div className="flex flex-col">
         <span className="text-2xl">{localChatName}</span>
