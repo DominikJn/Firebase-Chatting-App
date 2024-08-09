@@ -2,28 +2,37 @@ import React, { useState } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase-config";
 import { setDoc, doc } from "firebase/firestore";
+import handleAuthError from "../utils/handleAuthError";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    if (userCredential.user) {
-      const userRef = doc(db, "users", userCredential.user.uid);
-      await updateProfile(userCredential.user, { displayName: username });
-      await setDoc(userRef, {
-        email: email,
-        name: username,
-      });
-      //refresh page after signing up to make App.tsx useEffect work
-      location.replace("/");
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (userCredential.user) {
+        const userRef = doc(db, "users", userCredential.user.uid);
+        await updateProfile(userCredential.user, { displayName: username });
+        //set user doc
+        await setDoc(userRef, {
+          email: email,
+          name: username,
+          invites: [],
+          friends: [],
+        });
+        //refresh page after signing up to make App.tsx useEffect work
+        location.replace("/");
+      }
+    } catch (error: any) {
+      setError(handleAuthError(error.code));
     }
   }
 
@@ -58,6 +67,7 @@ const Register: React.FC = () => {
         >
           Register
         </button>
+        <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
       </form>
     </div>
   );

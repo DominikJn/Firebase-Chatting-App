@@ -1,14 +1,20 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebase-config";
+import handleAuthError from "../utils/handleAuthError";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    await signInWithEmailAndPassword(auth, email, password)
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      setError(handleAuthError(error.code));
+    }
   }
 
   return (
@@ -36,6 +42,7 @@ const Login: React.FC = () => {
         >
           Login
         </button>
+        <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
       </form>
     </div>
   );
