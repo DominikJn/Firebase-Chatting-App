@@ -9,10 +9,7 @@ import { RootState } from "./store";
 import { login, logout } from "./features/userSlice";
 import Navbar from "./components/Navbar";
 import Chat from "./components/chat/Chat";
-import {
-  doc,
-  getDoc,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { setInvites } from "./features/invitesSlice";
 import { setFriends } from "./features/friendsSlice";
 import InviteList from "./components/lists/InviteList";
@@ -35,7 +32,7 @@ const App: React.FC = () => {
         const docSnap = await getDoc(userRef);
         dispatch(setInvites(docSnap.data()?.invites || []));
         dispatch(setFriends(docSnap.data()?.friends || []));
-        dispatch(selectChat(docSnap.data()?.lastSelectedChat || ""));
+        dispatch(selectChat(docSnap.data()?.lastSelectedChat || null));
         //login user
         dispatch(login({ name: user.displayName, uid: user.uid }));
       } else {

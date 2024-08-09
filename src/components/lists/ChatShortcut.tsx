@@ -21,12 +21,12 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
 
   async function handleClick(): Promise<void> {
     const docRef = doc(db, "users", user.uid);
-    dispatch(selectChat(chat.id));
+    dispatch(selectChat(chat));
     //set chatName
     const chatName = handleChatName(chat.chatName, chat.users);
     dispatch(setChatName(chatName));
     //update last selected chat id in user doc
-    await updateDoc(docRef, { lastSelectedChat: chat.id });
+    await updateDoc(docRef, { lastSelectedChat: chat});
   }
 
   return (

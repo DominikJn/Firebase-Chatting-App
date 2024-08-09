@@ -24,21 +24,23 @@ const MessageContainer: React.FC = () => {
   }, [messages]);
 
   useEffect(() => {
-    const queryMessages = query(
-      messagesRef,
-      where("chat", "==", chat.selectedChat),
-      orderBy("createdAt")
-    );
-    const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
-      const fetchedMessages: NormalMessageData[] = [];
-      snapshot.forEach((doc) => {
-        const data: NormalMessageData = { id: doc.id, ...doc.data() };
-        fetchedMessages.push(data);
+    if (chat.selectedChat) {
+      const queryMessages = query(
+        messagesRef,
+        where("chat", "==", chat.selectedChat.id),
+        orderBy("createdAt")
+      );
+      const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
+        const fetchedMessages: NormalMessageData[] = [];
+        snapshot.forEach((doc) => {
+          const data: NormalMessageData = { id: doc.id, ...doc.data() };
+          fetchedMessages.push(data);
+        });
+        setMessages(fetchedMessages);
       });
-      setMessages(fetchedMessages);
-    });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    }
   }, [chat.selectedChat]);
 
   function scrollDown(): void {

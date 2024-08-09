@@ -30,13 +30,13 @@ const FriendList: React.FC = () => {
     //update current users's profile
     await updateDoc(doc(db, "users", user.uid), {
       friends: arrayRemove(friend),
-      lastSelectedChat: "",
+      lastSelectedChat: null,
     });
     //update deleted friend's profile
     const userAdjustedData = { name: user.name, id: user.uid };
     await updateDoc(doc(db, "users", friend.id), {
       friends: arrayRemove(userAdjustedData),
-      lastSelectedChat: "",
+      lastSelectedChat: null,
     });
     //delete chat between users
     const chatRef = collection(db, "chats");
@@ -58,7 +58,7 @@ const FriendList: React.FC = () => {
     });
     await deleteDoc(doc(db, "chats", chatToDelete));
     //unselect the chat if it was with deleted friend
-    if (chat.selectedChat === chatToDelete) dispatch(selectChat(""));
+    if (chat.selectedChat?.id === chatToDelete) dispatch(selectChat(null));
   }
 
   return (

@@ -16,33 +16,29 @@ import handleChatName from "../../utils/handleChatName";
 import ChatOptions from "./ChatOptions";
 import createMessageDoc from "../../utils/createMessageDoc";
 import type NormalMessageData from "../../types/message/NormalMessageData";
-import type ChatData from "../../types/chat/ChatData";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
   const chat = useSelector((state: RootState) => state.chats.value);
-  const selectedChatData: ChatData = chat.chats.filter(
-    (innerChat) => innerChat.id === chat.selectedChat
-  )[0];
-  console.log(selectedChatData);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const chatIdSegment = chat.selectedChat || "someranodmshit";
-  const chatRef = doc(db, "chats", chatIdSegment);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    //check for chat changes like chatName change etc.
-    const unsubscribe = onSnapshot(chatRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const chatName = handleChatName(
-          snapshot.data()?.chatName,
-          snapshot.data()?.users
-        );
-        dispatch(setChatName(chatName));
-      }
-    });
+    if (chat.selectedChat) {
+      //check for chat changes like chatName change etc.
+      const chatRef = doc(db, "chats", chat.selectedChat.id);
+      const unsubscribe = onSnapshot(chatRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const chatName = handleChatName(
+            snapshot.data()?.chatName,
+            snapshot.data()?.users
+          );
+          dispatch(setChatName(chatName));
+        }
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    }
   }, [chat.selectedChat]);
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
@@ -51,7 +47,7 @@ const Chat: React.FC = () => {
     if (chat.selectedChat) {
       //add new message doc
       const messageData: NormalMessageData = {
-        chat: chat.selectedChat,
+        chat: chat.selectedChat.id,
         createdAt: serverTimestamp(),
         text: message,
         user: user.name,
@@ -59,6 +55,7 @@ const Chat: React.FC = () => {
       };
       await createMessageDoc(messageData, "normal");
       //update last message field in chat doc
+      const chatRef = doc(db, "chats", chat.selectedChat.id);
       await updateDoc(chatRef, {
         lastMessage: message,
         lastMessageTimestamp: serverTimestamp(),
@@ -75,7 +72,7 @@ const Chat: React.FC = () => {
           toggleChatOptions={toggleChatOptions}
         />
         {areOptionsActive ? (
-          <ChatOptions chat={selectedChatData} />
+          <>{chat.selectedChat && <ChatOptions chat={chat.selectedChat} />}</>
         ) : (
           <MessageContainer />
         )}

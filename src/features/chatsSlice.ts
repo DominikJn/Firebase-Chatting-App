@@ -1,10 +1,10 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type ChatData from "../types/chat/ChatData";
 
 interface InitialStateChat {
   value: {
     chats: ChatData[];
-    selectedChat: string;
+    selectedChat: ChatData | null;
     chatName: string;
   };
 }
@@ -12,7 +12,7 @@ interface InitialStateChat {
 const initialState: InitialStateChat = {
   value: {
     chats: [],
-    selectedChat: "",
+    selectedChat: null,
     chatName: "",
   },
 };
@@ -24,7 +24,7 @@ export const chatsSlice = createSlice({
     setChats: (state, action) => {
       state.value.chats = action.payload;
     },
-    selectChat: (state, action) => {
+    selectChat: (state, action: PayloadAction<ChatData | null>) => {
       state.value.selectedChat = action.payload;
     },
     setChatName: (state, action) => {
