@@ -27,6 +27,7 @@ const Register: React.FC = () => {
           name: username,
           invites: [],
           friends: [],
+          unseenChats: [],
         });
         //refresh page after signing up to make App.tsx useEffect work
         location.replace("/");

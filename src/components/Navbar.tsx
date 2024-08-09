@@ -8,10 +8,15 @@ import { RootState } from "../store";
 
 const Navbar: React.FC = () => {
   const invites = useSelector((state: RootState) => state.invites.value);
+  const unseenChats = useSelector((state: RootState) => state.chats.value.unseenChats);
+
   return (
     <div className="p-6 text-4xl text-white flex flex-col gap-6">
-      <Link to="/">
+      <Link to="/" className="relative">
         <IoIosChatboxes />
+        {unseenChats.length > 0 && (
+          <div className="absolute -top-2 -right-2 text-sm bg-red-600 rounded-full p-2"></div>
+        )}
       </Link>
       <Link to="/friends">
         <FaUserFriends />

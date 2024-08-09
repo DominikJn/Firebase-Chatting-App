@@ -6,6 +6,7 @@ interface InitialStateChat {
     chats: ChatData[];
     selectedChat: ChatData | null;
     chatName: string;
+    unseenChats: string[];
   };
 }
 
@@ -14,6 +15,7 @@ const initialState: InitialStateChat = {
     chats: [],
     selectedChat: null,
     chatName: "",
+    unseenChats: [],
   },
 };
 
@@ -30,10 +32,13 @@ export const chatsSlice = createSlice({
     setChatName: (state, action) => {
       state.value.chatName = action.payload;
     },
+    setUnseenChats: (state, action: PayloadAction<string[]>) => {
+      state.value.unseenChats = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setChats, selectChat, setChatName } = chatsSlice.actions;
+export const { setChats, selectChat, setChatName, setUnseenChats } = chatsSlice.actions;
 
 export default chatsSlice.reducer;

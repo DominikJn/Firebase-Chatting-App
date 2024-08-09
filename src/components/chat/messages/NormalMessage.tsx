@@ -8,7 +8,6 @@ interface NormalMessageProps {
 }
 
 const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
-  console.log(message.type)
   const user = useSelector((state: RootState) => state.user.value);
   const isCurrentUserMessage = message.userId === user.uid;
   return (

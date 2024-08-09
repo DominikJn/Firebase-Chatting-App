@@ -16,6 +16,7 @@ import handleChatName from "../../utils/handleChatName";
 import ChatOptions from "./ChatOptions";
 import createMessageDoc from "../../utils/createMessageDoc";
 import type NormalMessageData from "../../types/message/NormalMessageData";
+import updateUsersUnseenChats from "../../utils/updateUsersUnseenChats";
 
 const Chat: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.value);
@@ -45,9 +46,10 @@ const Chat: React.FC = () => {
 
   async function sendMessage(message: string): Promise<void> {
     if (chat.selectedChat) {
+      const selectedChat = chat.selectedChat;
       //add new message doc
       const messageData: NormalMessageData = {
-        chat: chat.selectedChat.id,
+        chat: selectedChat.id,
         createdAt: serverTimestamp(),
         text: message,
         user: user.name,
@@ -55,11 +57,16 @@ const Chat: React.FC = () => {
       };
       await createMessageDoc(messageData, "normal");
       //update last message field in chat doc
-      const chatRef = doc(db, "chats", chat.selectedChat.id);
+      const chatRef = doc(db, "chats", selectedChat.id);
       await updateDoc(chatRef, {
         lastMessage: message,
         lastMessageTimestamp: serverTimestamp(),
       });
+      //update unseen chats array in all of chat members user docs
+      const usersWithoutCurrentUser = selectedChat.users.filter(
+        (chatUser) => chatUser.id !== user.uid
+      );
+      await updateUsersUnseenChats(usersWithoutCurrentUser, selectedChat.id);
     }
   }
 
