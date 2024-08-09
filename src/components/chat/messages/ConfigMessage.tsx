@@ -1,5 +1,5 @@
 import React from "react";
-import type ConfigMessageData from "../../../types/message/MessageData";
+import type ConfigMessageData from "../../../types/message/ConfigMesageData";
 
 interface ConfigMessageProps {
   message: ConfigMessageData;

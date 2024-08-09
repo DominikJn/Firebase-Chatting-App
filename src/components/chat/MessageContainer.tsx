@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import ConfigMessage from "./messages/ConfigMessage";
-import type NormalMessageData from "../../types/message/MessageData";
+import type NormalMessageData from "../../types/message/NormalMessageData";
 
 const MessageContainer: React.FC = () => {
   const chat = useSelector((state: RootState) => state.chats.value);
