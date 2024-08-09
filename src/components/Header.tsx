@@ -13,7 +13,7 @@ const Header: React.FC = () => {
   const handleLogout = async(): Promise<void> => await signOut(auth)
 
   return (
-    <header className="p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
+    <header className="h-[80px] p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
       <div>ChatApp</div>
       {user.name && <Searchbar />}
       <div className="flex items-center gap-4">

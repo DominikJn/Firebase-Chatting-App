@@ -10,12 +10,8 @@ import { login, logout } from "./features/userSlice";
 import Navbar from "./components/Navbar";
 import Chat from "./components/chat/Chat";
 import {
-  collection,
   doc,
   getDoc,
-  getDocs,
-  query,
-  where,
 } from "firebase/firestore";
 import { setInvites } from "./features/invitesSlice";
 import { setFriends } from "./features/friendsSlice";
@@ -25,8 +21,6 @@ import ChatList from "./components/lists/ChatList";
 import Sidebar from "./components/Sidebar";
 import StartingPage from "./pages/StartingPage";
 import { selectChat } from "./features/chatsSlice";
-import { setChats } from "./features/chatsSlice";
-import type ChatData from "./types/ChatData";
 import ChatsListener from "./components/listeners/ChatsListener";
 
 const App: React.FC = () => {
@@ -54,7 +48,7 @@ const App: React.FC = () => {
     <div className="h-screen flex flex-col">
       <Header />
       {user.name ? (
-        <div className="h-full p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
+        <div className="h-[calc(100%-80px)] p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
           <Navbar />
           <Sidebar>
             <Routes>

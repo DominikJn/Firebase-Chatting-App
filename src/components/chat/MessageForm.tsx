@@ -19,7 +19,7 @@ const MessageForm: React.FC<MessageFormProps> = ({ sendMessage }) => {
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="bg-slate-900 p-2 flex justify-between items-center gap-6"
+      className="h-[60px] bg-slate-900 p-2 flex justify-between items-center gap-6"
     >
       <input
         type="text"
