@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import NormalMessage from "./messages/NormalMessage";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
@@ -16,7 +16,12 @@ import type NormalMessageData from "../../types/message/MessageData";
 const MessageContainer: React.FC = () => {
   const chat = useSelector((state: RootState) => state.chats.value);
   const [messages, setMessages] = useState<NormalMessageData[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesRef = collection(db, "messages");
+
+  useEffect(() => {
+    scrollDown();
+  }, [messages]);
 
   useEffect(() => {
     const queryMessages = query(
@@ -36,9 +41,17 @@ const MessageContainer: React.FC = () => {
     return () => unsubscribe();
   }, [chat.selectedChat]);
 
+  function scrollDown(): void {
+    const current = containerRef.current;
+    if (current) current.scrollTop = current.scrollHeight;
+  }
+
   return (
-    <div className="h-full overflow-y-scroll flex flex-col gap-2 p-2">
-      {messages.map((message: NormalMessageData, index: number) =>
+    <div
+      ref={containerRef}
+      className="h-full overflow-y-scroll flex flex-col gap-2 p-2"
+    >
+      {messages.map((message, index) =>
         message.type === "normal" ? (
           <NormalMessage key={index} message={message} />
         ) : (
