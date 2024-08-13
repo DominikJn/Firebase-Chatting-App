@@ -1,15 +1,15 @@
 import React from "react";
 import type NormalMessageData from "../../../types/message/NormalMessageData";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
+import { userApi } from "../../../features/api/userApi";
 
 interface NormalMessageProps {
   message: NormalMessageData;
 }
 
 const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const isCurrentUserMessage = message.userId === user.uid;
+  const user = userApi.endpoints.getUser.useQuery().data;
+  const isCurrentUserMessage = message.userId === user?.id;
+
   return (
     <div
       className={`w-1/2 ${

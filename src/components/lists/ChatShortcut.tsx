@@ -1,38 +1,39 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { selectChat, setChatName } from "../../features/chatsSlice";
-import { RootState } from "../../store";
+import { useDispatch } from "react-redux";
+import { selectChat } from "../../features/selectedChatSlice";
 import type ChatData from "../../types/chat/ChatData";
 import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import handleChatName from "../../utils/handleChatName";
 import { HiUserGroup } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
+import { userApi } from "../../features/api/userApi";
 
 interface ChatShortcutProps {
   chat: ChatData;
 }
 
 const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const unseenChats = useSelector(
-    (state: RootState) => state.chats.value.unseenChats
-  );
-  const isChatUnseen = unseenChats.includes(chat.id);
-  const localChatName = handleChatName(chat.chatName, chat.users);
+  const user = userApi.endpoints.getUser.useQuery().data;
+  const isChatUnseen = checkIfChatUnseen();
+  const chatName = handleChatName(chat.chatName, chat.users);
   const dispatch = useDispatch();
 
+  function checkIfChatUnseen(): boolean {
+    const chatId = chat.id || "";
+    return user ? user.unseenChats.includes(chatId) : false;
+  }
+
   async function handleClick(): Promise<void> {
-    const docRef = doc(db, "users", user.uid);
-    dispatch(selectChat(chat));
-    //set chatName
-    const chatName = handleChatName(chat.chatName, chat.users);
-    dispatch(setChatName(chatName));
-    //update last selected chat id and remove chat from unseen chats array in user doc
-    await updateDoc(docRef, {
-      lastSelectedChat: chat,
-      unseenChats: arrayRemove(chat.id),
-    });
+    if (user) {
+      const docRef = doc(db, "users", user.id);
+      dispatch(selectChat(chat));
+      //update last selected chat id and remove chat from unseen chats array in user doc
+      await updateDoc(docRef, {
+        lastSelectedChat: chat,
+        unseenChats: arrayRemove(chat.id),
+      });
+    }
   }
 
   return (
@@ -49,7 +50,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
         )}
       </div>
       <div className="flex flex-col">
-        <span className="text-2xl">{localChatName}</span>
+        <span className="text-2xl">{chatName}</span>
         <span className="text-slate-400 truncate">{chat.lastMessage}</span>
       </div>
     </div>

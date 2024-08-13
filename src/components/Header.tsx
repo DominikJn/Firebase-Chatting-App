@@ -1,26 +1,29 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
-import { RootState } from "../store";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
 import Searchbar from "./Searchbar";
+import { userApi } from "../features/api/userApi";
 
 const Header: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.value);
+  const user = userApi.endpoints.getUser.useQuery().data;
+
   const navigate = useNavigate();
 
-  const handleLogout = async(): Promise<void> => await signOut(auth)
+  const handleLogout = async (): Promise<void> => await signOut(auth);
 
   return (
     <header className="h-[80px] p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
       <div>ChatApp</div>
-      {user.name && <Searchbar />}
+      {user && <Searchbar />}
       <div className="flex items-center gap-4">
-        {user.name ? (
+        {user ? (
           <>
             <span>{user.name}</span>
-            <button onClick={handleLogout} className="border-solid border rounded-full py-2 px-4">
+            <button
+              onClick={handleLogout}
+              className="border-solid border rounded-full py-2 px-4"
+            >
               Logout
             </button>
           </>

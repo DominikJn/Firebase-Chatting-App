@@ -2,69 +2,52 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import {
-  arrayRemove,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
-import { selectChat } from "../../features/chatsSlice";
-
-type ChatToDeleteData = {
-  id: string;
-  userIds: string[];
-};
+import { selectChat } from "../../features/selectedChatSlice";
+import { userApi } from "../../features/api/userApi";
+import { chatApi } from "../../features/api/chatApi";
 
 const FriendList: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const friends = useSelector((state: RootState) => state.friends.value);
-  const chat = useSelector((state: RootState) => state.chats.value);
+  const user = userApi.endpoints.getUser.useQuery().data;
+
+  const chats = chatApi.endpoints.getUserChats.useQuery().data;
+  const [deleteChat] = chatApi.endpoints.deleteChat.useMutation();
+
+  const selectedChat = useSelector(
+    (state: RootState) => state.selectedChat.value
+  );
   const dispatch = useDispatch();
 
   async function handleFriendDelete(friend: UserData): Promise<void> {
-    //update current users's profile
-    await updateDoc(doc(db, "users", user.uid), {
-      friends: arrayRemove(friend),
-      lastSelectedChat: null,
-    });
-    //update deleted friend's profile
-    const userAdjustedData = { name: user.name, id: user.uid };
-    await updateDoc(doc(db, "users", friend.id), {
-      friends: arrayRemove(userAdjustedData),
-      lastSelectedChat: null,
-    });
-    //delete chat between users
-    const chatRef = collection(db, "chats");
-    const queryChats = query(
-      chatRef,
-      where("userIds", "array-contains", user.uid)
-    );
-    const chats: ChatToDeleteData[] = [];
-    const chatDocs = await getDocs(queryChats);
-    chatDocs.forEach((doc) =>
-      chats.push({ id: doc.id, userIds: doc.data().userIds })
-    );
-    //find a chat that contains both friends ID and current user ID
-    let chatToDelete: string = "";
-    chats.forEach((chat) => {
-      if (chat.userIds.includes(user.uid) && chat.userIds.includes(friend.id)) {
-        chatToDelete = chat.id;
-      }
-    });
-    await deleteDoc(doc(db, "chats", chatToDelete));
-    //unselect the chat if it was with deleted friend
-    if (chat.selectedChat?.id === chatToDelete) dispatch(selectChat(null));
+    if (user) {
+      const chatId =
+        chats?.filter(
+          (chat) => chat.userIds.includes(friend.id) && chat.type === "single"
+        )[0].id || "";
+      // update current users's profile
+      await updateDoc(doc(db, "users", user.id), {
+        friends: arrayRemove(friend),
+        unseenChats: arrayRemove(chatId),
+        lastSelectedChat: null,
+      });
+      //update deleted friend's profile
+      await updateDoc(doc(db, "users", friend.id), {
+        friends: arrayRemove({ name: user.name, id: user.id }),
+        unseenChats: arrayRemove(chatId),
+        lastSelectedChat: null,
+      });
+      //delete chat between users
+      deleteChat(chatId).unwrap();
+      //unselect the chat if it was with deleted friend
+      if (selectedChat?.id === chatId) dispatch(selectChat(null));
+    }
   }
 
   return (
     <>
       <h2 className="text-center text-2xl">Friends</h2>
-      {friends.map((friend: UserData, index: number) => (
+      {user?.friends.map((friend: UserData, index: number) => (
         <div
           key={`${friend.id}-${index}`}
           className="bg-slate-600 rounded-full text-2xl cursor-pointer px-3 py-3 m-2 flex flex-wrap justify-between gap-2"

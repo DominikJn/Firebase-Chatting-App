@@ -8,7 +8,7 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { CiSearch } from "react-icons/ci";
-import { auth, db } from "../firebase-config";
+import { db } from "../firebase-config";
 import type UserData from "../types/UserData";
 import SearchField from "./SearchField";
 
@@ -16,9 +16,12 @@ const Searchbar: React.FC = () => {
   const [searchValue, setSearchValue] = useState<string>("");
   const [userList, setUserList] = useState<UserData[]>([]);
   const [isListVisible, setListVisible] = useState<boolean>(false);
+
   //set small timeout to prevent bluring from preventing sendInvite() click event
-  const hideList = (): NodeJS.Timeout => setTimeout(() => setListVisible(false), 200);
-  const showList = (): NodeJS.Timeout => setTimeout(() => setListVisible(true), 200);
+  const hideList = (): NodeJS.Timeout =>
+    setTimeout(() => setListVisible(false), 200);
+  const showList = (): NodeJS.Timeout =>
+    setTimeout(() => setListVisible(true), 200);
 
   useEffect(() => {
     if (searchValue) search();
@@ -27,26 +30,19 @@ const Searchbar: React.FC = () => {
   }, [searchValue]);
 
   async function search() {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = collection(db, "users");
-        const q = query(
-          userRef,
-          orderBy("name"),
-          startAt(searchValue),
-          endAt(searchValue + "\uf8ff")
-        );
-        const querySnapshot = await getDocs(q);
-        const fetchedUsers = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          name: doc.data().name,
-        }));
-        setUserList(fetchedUsers);
-      }
-    } catch (err: any) {
-      throw new Error(err);
-    }
+    const userRef = collection(db, "users");
+    const q = query(
+      userRef,
+      orderBy("name"),
+      startAt(searchValue),
+      endAt(searchValue + "\uf8ff")
+    );
+    const querySnapshot = await getDocs(q);
+    const fetchedUsers = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      name: doc.data().name,
+    }));
+    setUserList(fetchedUsers);
   }
 
   return (

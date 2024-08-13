@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import createChatDoc from "../../utils/createChatDoc";
+import { chatApi } from "../../features/api/chatApi";
+import { serverTimestamp } from "firebase/firestore";
+import { userApi } from "../../features/api/userApi";
+import ChatData from "../../types/chat/ChatData";
 
 interface CreateGroupModalProps {
   setModalOpen: (arg: boolean) => void;
@@ -11,18 +12,20 @@ interface CreateGroupModalProps {
 const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   setModalOpen,
 }) => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const friends = useSelector((state: RootState) => state.friends.value);
+  const user = userApi.endpoints.getUser.useQuery().data;
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredFriends, setFilteredFriends] = useState<UserData[]>([]);
   const [chosenFriends, setChosenFriends] = useState<UserData[]>([]);
 
+  const [addChat] = chatApi.endpoints.addChat.useMutation();
+
   useEffect(() => {
-    setFilteredFriends(
-      friends.filter((friend) =>
-        friend.name.includes(searchValue.toLowerCase())
-      )
-    );
+    user &&
+      setFilteredFriends(
+        user.friends.filter((friend) =>
+          friend.name.includes(searchValue.toLowerCase())
+        )
+      );
   }, [searchValue]);
 
   function handleChoose(friend: UserData): void {
@@ -37,16 +40,21 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
     }
   }
 
-  async function handleGroupCreation(): Promise<void> {
-    //create chat with chosen friends
-    const finalUsers = [...chosenFriends, { name: user.name, id: user.uid }];
-    if (finalUsers.length > 2) {
+  function handleGroupCreation(): void {
+    if (user) {
+      const finalUsers = [...chosenFriends, { name: user.name, id: user.id }];
+      const userIds = finalUsers.map((finalUser) => finalUser.id);
       //create document in chats
-      await createChatDoc(finalUsers, "group");
-    } else {
-      console.log(
-        "In order to create a group there must be more than 2 members!"
-      );
+      const newChat: ChatData = {
+        users: finalUsers,
+        userIds,
+        admins: userIds,
+        type: "group",
+        chatName: "",
+        lastMessage: "",
+        lastMessageTimestamp: serverTimestamp(),
+      };
+      addChat(newChat);
     }
   }
 

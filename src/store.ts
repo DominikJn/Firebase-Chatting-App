@@ -1,19 +1,25 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "./features/userSlice";
-import invitesReducer from "./features/invitesSlice";
-import friendsReducer from "./features/friendsSlice";
-import chatsReducer from "./features/chatsSlice";
+import selectedChatReducer from "./features/selectedChatSlice";
+import { chatApi } from "./features/api/chatApi";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { messageApi } from "./features/api/messageApi";
+import { userApi } from "./features/api/userApi";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
-    invites: invitesReducer,
-    friends: friendsReducer,
-    chats: chatsReducer,
+    selectedChat: selectedChatReducer,
+    [chatApi.reducerPath]: chatApi.reducer,
+    [messageApi.reducerPath]: messageApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({ serializableCheck: false }),
+    getDefaultMiddleware({ serializableCheck: false })
+      .concat(chatApi.middleware)
+      .concat(messageApi.middleware)
+      .concat(userApi.middleware),
 });
+
+setupListeners(store.dispatch);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;

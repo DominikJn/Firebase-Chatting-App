@@ -1,38 +1,46 @@
-import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { serverTimestamp } from "firebase/firestore";
 import React, { useState } from "react";
-import { db } from "../../firebase-config";
 import { RiEditFill } from "react-icons/ri";
-import createMessageDoc from "../../utils/createMessageDoc";
 import type NormalMessageData from "../../types/message/NormalMessageData";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import type ChatData from "../../types/chat/ChatData";
+import { chatApi } from "../../features/api/chatApi";
+import { messageApi } from "../../features/api/messageApi";
+import { userApi } from "../../features/api/userApi";
 
 interface ChatOptionsProps {
   chat: ChatData;
 }
 
 const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
-  const user = useSelector((state: RootState) => state.user.value);
+  const [newChatName, setNewChatName] = useState<string>(chat.chatName);
+
+  const user = userApi.endpoints.getUser.useQuery().data;
+  const [updateChatName] = chatApi.endpoints.updateChatName.useMutation();
+  const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
+
   const chatId = chat.id ?? "somerandomshit";
-  const [inputValue, setInputValue] = useState<string>(chat.chatName);
-  const isAdmin = chat.admins.includes(user.uid);
+  const isAdmin = checkIfAdmin();
+
+  function checkIfAdmin(): boolean {
+    return user ? chat.admins.includes(user.id) : false;
+  }
 
   async function changeChatname(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
-    await updateDoc(doc(db, "chats", chatId), {
-      chatName: inputValue,
-    });
-    const messageData: NormalMessageData = {
-      chat: chatId,
-      createdAt: serverTimestamp(),
-      text: `ChatName has been changed to ${inputValue}`,
-      user: user.name,
-      userId: user.uid,
-    };
-    await createMessageDoc(messageData, "config");
+    if (user) {
+      const messageData: NormalMessageData = {
+        chat: chatId,
+        createdAt: serverTimestamp(),
+        text: `ChatName has been changed to ${newChatName}`,
+        type: "config",
+        user: user.name,
+        userId: user.id,
+      };
+      await updateChatName({ chatId, newChatName });
+      await sendMessage(messageData);
+    }
   }
 
   return (
@@ -48,8 +56,8 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
             <input
               type="text"
               className="text-black p-1 rounded-full"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              value={newChatName}
+              onChange={(e) => setNewChatName(e.target.value)}
             />
             <button type="submit" className="text-3xl">
               <RiEditFill />

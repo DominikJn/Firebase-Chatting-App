@@ -1,72 +1,57 @@
-import React, { useEffect, useState } from "react";
-import {
-  doc,
-  onSnapshot,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { useSelector } from "react-redux";
 import { db } from "../../firebase-config";
 import { RootState } from "../../store";
 import MessageForm from "./MessageForm";
 import MessageContainer from "./MessageContainer";
 import ChatHeader from "./ChatHeader";
-import { setChatName } from "../../features/chatsSlice";
-import handleChatName from "../../utils/handleChatName";
 import ChatOptions from "./ChatOptions";
-import createMessageDoc from "../../utils/createMessageDoc";
 import type NormalMessageData from "../../types/message/NormalMessageData";
-import updateUsersUnseenChats from "../../utils/updateUsersUnseenChats";
+import { messageApi } from "../../features/api/messageApi";
+import handleChatName from "../../utils/handleChatName";
+import { userApi } from "../../features/api/userApi";
 
 const Chat: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const chat = useSelector((state: RootState) => state.chats.value);
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const dispatch = useDispatch();
+  const user = userApi.endpoints.getUser.useQuery().data;
+  const selectedChat = useSelector(
+    (state: RootState) => state.selectedChat.value
+  );
+  console.log(selectedChat?.chatName);
+  const chatName: string =
+    selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
 
-  useEffect(() => {
-    if (chat.selectedChat) {
-      //check for chat changes like chatName change etc.
-      const chatRef = doc(db, "chats", chat.selectedChat.id);
-      const unsubscribe = onSnapshot(chatRef, (snapshot) => {
-        if (snapshot.exists()) {
-          const chatName = handleChatName(
-            snapshot.data()?.chatName,
-            snapshot.data()?.users
-          );
-          dispatch(setChatName(chatName));
-        }
-      });
-
-      return () => unsubscribe();
-    }
-  }, [chat.selectedChat]);
+  const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
+  const [updateUsersUnseenChats] =
+    messageApi.endpoints.updateUnseenChats.useMutation();
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 
-  async function sendMessage(message: string): Promise<void> {
-    if (chat.selectedChat) {
-      const selectedChat = chat.selectedChat;
+  async function handleMessageFormSubmit(message: string): Promise<void> {
+    if (user && selectedChat) {
       //add new message doc
+      const chatId = selectedChat.id || "";
       const messageData: NormalMessageData = {
-        chat: selectedChat.id,
+        chat: chatId,
         createdAt: serverTimestamp(),
         text: message,
+        type: "normal",
         user: user.name,
-        userId: user.uid,
+        userId: user.id,
       };
-      await createMessageDoc(messageData, "normal");
+      sendMessage(messageData);
+      //update unseenChats array in users' docs
+      const userIds: string[] = selectedChat.userIds.filter(
+        (userId) => userId !== user.id
+      );
+      updateUsersUnseenChats({ userIds, chatId });
       //update last message field in chat doc
-      const chatRef = doc(db, "chats", selectedChat.id);
+      const chatRef = doc(db, "chats", chatId);
       await updateDoc(chatRef, {
         lastMessage: message,
         lastMessageTimestamp: serverTimestamp(),
       });
-      //update unseen chats array in all of chat members user docs
-      const usersWithoutCurrentUser = selectedChat.users.filter(
-        (chatUser) => chatUser.id !== user.uid
-      );
-      await updateUsersUnseenChats(usersWithoutCurrentUser, selectedChat.id);
     }
   }
 
@@ -74,16 +59,16 @@ const Chat: React.FC = () => {
     <div className="w-full p-4">
       <div className="bg-gray-100 w-full h-full flex flex-col">
         <ChatHeader
-          chatName={chat.chatName}
+          chatName={chatName}
           areOptionsActive={areOptionsActive}
           toggleChatOptions={toggleChatOptions}
         />
         {areOptionsActive ? (
-          <>{chat.selectedChat && <ChatOptions chat={chat.selectedChat} />}</>
+          <>{selectedChat && <ChatOptions chat={selectedChat} />}</>
         ) : (
           <MessageContainer />
         )}
-        <MessageForm sendMessage={sendMessage} />
+        <MessageForm handleMessageFormSubmit={handleMessageFormSubmit} />
       </div>
     </div>
   );

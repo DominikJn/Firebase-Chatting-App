@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from "react";
 import type UserData from "../types/UserData";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
 import { db } from "../firebase-config";
 import { LiaUserFriendsSolid } from "react-icons/lia";
+import { userApi } from "../features/api/userApi";
 
 interface SearchFieldProps {
   searchedUser: UserData;
 }
 
 const SearchField: React.FC<SearchFieldProps> = ({ searchedUser }) => {
-  const user = useSelector((state: RootState) => state.user.value);
-  const friends = useSelector((state: RootState) => state.friends.value);
+  const user = userApi.endpoints.getUser.useQuery().data;
   const [isFriend, setFriend] = useState<boolean>(false);
 
   useEffect(() => {
@@ -20,20 +18,21 @@ const SearchField: React.FC<SearchFieldProps> = ({ searchedUser }) => {
   }, []);
 
   function checkIfFriends(): boolean {
-    //prevent user from inviting himself
-    if (searchedUser.id === user.uid) return true;
+    if (user) {
+      //prevent user from inviting himself
+      if (searchedUser.id === user.id) return true;
 
-    for (let friend of friends) {
-      if (searchedUser.id === friend.id) return true;
+      for (let friend of user.friends) {
+        if (searchedUser.id === friend.id) return true;
+      }
     }
-
     return false;
   }
 
   async function sendInvite(searchedUser: UserData): Promise<void> {
     const userRef = doc(db, "users", searchedUser.id);
     await updateDoc(userRef, {
-      invites: arrayUnion({ name: user.name, id: user.uid }),
+      invites: arrayUnion({ name: user?.name, id: user?.id }),
     });
   }
 

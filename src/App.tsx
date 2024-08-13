@@ -3,10 +3,6 @@ import Header from "./components/Header";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { Route, Routes } from "react-router";
-import { auth } from "./firebase-config";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "./store";
-import { login, logout } from "./features/userSlice";
 import Navbar from "./components/Navbar";
 import Chat from "./components/chat/Chat";
 import InviteList from "./components/lists/InviteList";
@@ -14,27 +10,22 @@ import FriendList from "./components/lists/FriendList";
 import ChatList from "./components/lists/ChatList";
 import Sidebar from "./components/Sidebar";
 import StartingPage from "./pages/StartingPage";
-import ChatsListener from "./components/listeners/ChatsListener";
-import UserDocListener from "./components/listeners/UserDocListener";
+import { userApi } from "./features/api/userApi";
+import { selectChat } from "./features/selectedChatSlice";
+import { useDispatch } from "react-redux";
 
 const App: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.value);
+  const user = userApi.endpoints.getUser.useQuery().data;
   const dispatch = useDispatch();
 
   useEffect(() => {
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        dispatch(login({ name: user.displayName, uid: user.uid }));
-      } else {
-        dispatch(logout());
-      }
-    });
-  }, []);
+    if (user) dispatch(selectChat(user.lastSelectedChat));
+  }, [user]);
 
   return (
     <div className="h-screen flex flex-col">
       <Header />
-      {user.name ? (
+      {user ? (
         <div className="h-[calc(100%-80px)] p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
           <Navbar />
           <Sidebar>
@@ -45,10 +36,6 @@ const App: React.FC = () => {
               <Route path="*" element={<ChatList />} />
             </Routes>
           </Sidebar>
-
-          <UserDocListener />
-          <ChatsListener />
-
           <Chat />
         </div>
       ) : (

@@ -2,16 +2,18 @@ import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 
 interface MessageFormProps {
-  sendMessage: (message: string) => Promise<void>;
+  handleMessageFormSubmit: (message: string) => Promise<void>;
 }
 
-const MessageForm: React.FC<MessageFormProps> = ({ sendMessage }) => {
+const MessageForm: React.FC<MessageFormProps> = ({
+  handleMessageFormSubmit,
+}) => {
   const [message, setMessage] = useState<string>("");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    if(message) {
-      sendMessage(message);
+    if (message) {
+      handleMessageFormSubmit(message);
       setMessage("");
     }
   }
