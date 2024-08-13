@@ -2,6 +2,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import React, { useState } from "react";
 import { auth } from "../firebase-config";
 import handleAuthError from "../utils/handleAuthError";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -18,10 +19,10 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className="h-full grid place-items-center">
+    <AnimatedBackground>
       <form
         onSubmit={(e) => handleSubmit(e)}
-        className="bg-slate-900 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl"
+        className="bg-slate-950 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl"
       >
         <h1 className="text-center text-5xl">Login</h1>
         <input
@@ -44,7 +45,7 @@ const Login: React.FC = () => {
         </button>
         <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
       </form>
-    </div>
+    </AnimatedBackground>
   );
 };
 

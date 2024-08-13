@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
 import Searchbar from "./Searchbar";
@@ -14,7 +14,7 @@ const Header: React.FC = () => {
 
   return (
     <header className="h-[80px] p-4 border-solid border-b text-white text-2xl flex justify-between items-center">
-      <div>ChatApp</div>
+      <Link to={user ? "/chats" : "/"}>ChatApp</Link>
       {user && <Searchbar />}
       <div className="flex items-center gap-4">
         {user ? (

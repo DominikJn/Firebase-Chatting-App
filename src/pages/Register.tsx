@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase-config";
 import { setDoc, doc } from "firebase/firestore";
 import handleAuthError from "../utils/handleAuthError";
+import AnimatedBackground from "../components/AnimatedBackground";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -38,10 +39,10 @@ const Register: React.FC = () => {
   }
 
   return (
-    <div className="h-full grid place-items-center">
+    <AnimatedBackground>
       <form
         onSubmit={(e) => handleSubmit(e)}
-        className="bg-slate-900 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl"
+        className="bg-slate-950 backdrop-filter backdrop-blur-sm bg-opacity-60 h-3/5 w-1/4 rounded-lg flex flex-col justify-between p-8 text-white text-2xl"
       >
         <h1 className="text-center text-5xl">Register</h1>
         <input
@@ -70,7 +71,7 @@ const Register: React.FC = () => {
         </button>
         <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
       </form>
-    </div>
+    </AnimatedBackground>
   );
 };
 
