@@ -56,7 +56,7 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="w-full p-4">
+    <article className="w-full p-4">
       <div className="bg-gray-100 w-full h-full flex flex-col">
         <ChatHeader
           chatName={chatName}
@@ -70,7 +70,7 @@ const Chat: React.FC = () => {
         )}
         <MessageForm handleMessageFormSubmit={handleMessageFormSubmit} />
       </div>
-    </div>
+    </article>
   );
 };
 

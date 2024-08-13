@@ -6,15 +6,17 @@ import ConfigMessage from "./messages/ConfigMessage";
 import { messageApi } from "../../features/api/messageApi";
 import NormalMessageData from "../../types/message/NormalMessageData";
 import ConfigMessageData from "../../types/message/ConfigMesageData";
+import Loading from "../Loading";
 
 const MessageContainer: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+
   const selectedChat = useSelector(
     (state: RootState) => state.selectedChat.value
   );
   const chatId = selectedChat?.id || "";
 
-  const { data, isLoading, isError } =
+  const { data, isLoading, isFetching, isError } =
     messageApi.endpoints.getChatMessages.useQuery(chatId);
 
   useEffect(() => {
@@ -26,11 +28,11 @@ const MessageContainer: React.FC = () => {
     if (current) current.scrollTop = current.scrollHeight;
   }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || isFetching) return <Loading />;
   if (isError) return <div>Error!</div>;
 
   return (
-    <div
+    <section
       ref={containerRef}
       className="h-full overflow-y-scroll flex flex-col gap-2 p-2"
     >
@@ -41,7 +43,7 @@ const MessageContainer: React.FC = () => {
           <ConfigMessage key={index} message={message as ConfigMessageData} />
         )
       )}
-    </div>
+    </section>
   );
 };
 

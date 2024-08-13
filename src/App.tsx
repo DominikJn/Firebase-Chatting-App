@@ -13,6 +13,8 @@ import StartingPage from "./pages/StartingPage";
 import { userApi } from "./features/api/userApi";
 import { selectChat } from "./features/selectedChatSlice";
 import { useDispatch } from "react-redux";
+import Layout from "./Layout";
+import Main from "./components/Main";
 
 const App: React.FC = () => {
   const user = userApi.endpoints.getUser.useQuery().data;
@@ -23,10 +25,10 @@ const App: React.FC = () => {
   }, [user]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <Layout>
       <Header />
       {user ? (
-        <div className="h-[calc(100%-80px)] p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
+        <Main>
           <Navbar />
           <Sidebar>
             <Routes>
@@ -37,7 +39,7 @@ const App: React.FC = () => {
             </Routes>
           </Sidebar>
           <Chat />
-        </div>
+        </Main>
       ) : (
         <Routes>
           <Route path="/" element={<StartingPage />} />
@@ -45,7 +47,7 @@ const App: React.FC = () => {
           <Route path="/register" element={<Register />} />
         </Routes>
       )}
-    </div>
+    </Layout>
   );
 };
 
