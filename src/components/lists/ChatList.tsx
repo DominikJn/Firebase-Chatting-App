@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import ChatShortcut from "./ChatShortcut";
 import CreateGroupModal from "../modals/CreateGroupModal";
 import { chatApi } from "../../features/api/chatApi";
-import Loading from "../Loading";
 
 const ChatList: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
   const { data, isLoading, isError } =
     chatApi.endpoints.getUserChats.useQuery();
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error!</div>;
 
   return (

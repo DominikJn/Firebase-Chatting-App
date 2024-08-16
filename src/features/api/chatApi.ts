@@ -87,7 +87,7 @@ export const chatApi = createApi({
 
     //update chatName field in chat doc
     updateChatName: builder.mutation<
-      void,
+      string,
       { chatId: string; newChatName: string }
     >({
       async queryFn({ chatId, newChatName }) {

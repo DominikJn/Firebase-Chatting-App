@@ -5,26 +5,25 @@ import {
   doc,
   QueryDocumentSnapshot,
   query,
-  where,
   updateDoc,
   serverTimestamp,
   orderBy,
   writeBatch,
   arrayUnion,
+  addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ConfigMessageData from "../../types/message/ConfigMesageData";
-import createMessageDoc from "../utils/createMessageDoc";
 
-const COLLECTION_NAME: string = "messages";
-
-// Define the API slice
 export const messageApi = createApi({
   reducerPath: "messageApi",
   baseQuery: fakeBaseQuery(),
   endpoints: (builder) => ({
-    getChatMessages: builder.query<(NormalMessageData | ConfigMessageData)[], string>({
+    getChatMessages: builder.query<
+      (NormalMessageData | ConfigMessageData)[],
+      string
+    >({
       queryFn: () => {
         // Return an initial empty array (or other initial state)
         return { data: [] };
@@ -36,12 +35,8 @@ export const messageApi = createApi({
         await cacheDataLoaded;
 
         // Subscribe to real-time updates using onSnapshot
-        const messagesRef = collection(db, COLLECTION_NAME);
-        const queryMessages = query(
-          messagesRef,
-          where("chat", "==", chatId),
-          orderBy("createdAt")
-        );
+        const chatMessagesRef = collection(db, "chats", chatId, "messages");
+        const queryMessages = query(chatMessagesRef, orderBy("createdAt"));
         const unsubscribe = onSnapshot(queryMessages, (snapshot) => {
           updateCachedData((draft) => {
             snapshot.docChanges().forEach((change) => {
@@ -78,11 +73,15 @@ export const messageApi = createApi({
     }),
 
     //create chat doc in chats collection
-    sendMessage: builder.mutation<string, Omit<NormalMessageData | ConfigMessageData, "id">>({
-      async queryFn(message) {
+    sendMessage: builder.mutation<
+      string,
+      { message: NormalMessageData | ConfigMessageData; chatId: string }
+    >({
+      async queryFn({ message, chatId }) {
         try {
-          //create message doc
-          const docRef = await createMessageDoc(message);
+          //create message doc in chat subcollection
+          const chatMessagesRef = collection(db, "chats", chatId, "messages");
+          const docRef = await addDoc(chatMessagesRef, message);
           //update lastMessage in chat doc
           await updateDoc(doc(db, "chats", message.chat), {
             lastMessage: message.text,
@@ -90,27 +89,30 @@ export const messageApi = createApi({
           });
           return { data: docRef.id };
         } catch (error: any) {
-          return { error};
+          return { error };
         }
       },
     }),
 
     //update unseen chats array in users' docs
-    updateUnseenChats: builder.mutation<string, { userIds: string[], chatId: string }>({
+    updateUnseenChats: builder.mutation<
+      string,
+      { userIds: string[]; chatId: string }
+    >({
       async queryFn({ userIds, chatId }) {
         const batch = writeBatch(db);
         userIds.forEach((userId) => {
           const docRef = doc(db, "users", userId);
           batch.update(docRef, { unseenChats: arrayUnion(chatId) });
         });
-      
+
         try {
           await batch.commit();
-          return { data: 'Unseen chats updated successfuly' }
+          return { data: "Unseen chats updated successfuly" };
         } catch (error: any) {
           return { error };
         }
-      }
-    })
+      },
+    }),
   }),
 });

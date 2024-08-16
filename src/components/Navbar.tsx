@@ -11,7 +11,7 @@ const Navbar: React.FC = () => {
 
   return (
     <div className="p-6 text-4xl text-white flex flex-col gap-6">
-      <Link to="/" className="relative">
+      <Link to="/chats" className="relative">
         <IoIosChatboxes />
         {user && user.unseenChats.length > 0 && (
           <div className="absolute -top-2 -right-2 text-sm bg-red-600 rounded-full p-2"></div>

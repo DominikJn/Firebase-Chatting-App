@@ -18,11 +18,11 @@ const Chat: React.FC = () => {
   const selectedChat = useSelector(
     (state: RootState) => state.selectedChat.value
   );
-  console.log(selectedChat?.chatName);
   const chatName: string =
-    selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
+    handleChatName(selectedChat!.chatName, selectedChat!.users);
 
   const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
+
   const [updateUsersUnseenChats] =
     messageApi.endpoints.updateUnseenChats.useMutation();
 
@@ -40,7 +40,7 @@ const Chat: React.FC = () => {
         user: user.name,
         userId: user.id,
       };
-      sendMessage(messageData);
+      sendMessage({message: messageData, chatId: selectedChat.id});
       //update unseenChats array in users' docs
       const userIds: string[] = selectedChat.userIds.filter(
         (userId) => userId !== user.id

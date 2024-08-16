@@ -6,7 +6,7 @@ interface MainProps {
 
 const Main: React.FC<MainProps> = ({ children }) => {
   return (
-    <main className="h-[calc(100%-80px)] p-2 flex gap-2 *:bg-slate-900 *:rounded-lg">
+    <main className="h-[calc(100%-80px)] p-2 flex justify-center gap-2 *:bg-slate-900 *:rounded-lg">
       {children}
     </main>
   );
