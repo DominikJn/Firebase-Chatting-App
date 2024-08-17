@@ -31,9 +31,11 @@ const InviteList: React.FC = () => {
       const users = [{ name: user.name, id: user.id }, invite];
       const userIds = users.map((user) => user.id);
       const newChat: ChatData = {
+        id: "",
         users,
         userIds,
         admins: userIds,
+        unseenBy: userIds,
         type: "single",
         chatName: "",
         lastMessage: "",

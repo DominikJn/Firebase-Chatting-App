@@ -9,10 +9,12 @@ import {
   where,
   updateDoc,
   orderBy,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase-config";
 import ChatData from "../../types/chat/ChatData";
-import createChatDoc from "../utils/createChatDoc";
+import MessageData from "../../types/message/MessageData";
 
 const COLLECTION_NAME: string = "chats";
 
@@ -46,12 +48,12 @@ export const chatApi = createApi({
               const doc = change.doc as QueryDocumentSnapshot<ChatData>;
               switch (change.type) {
                 case "added":
-                  draft.push({ id: doc.id, ...doc.data() });
+                  draft.push({ ...doc.data(), id: doc.id });
                   break;
                 case "modified":
                   const index = draft.findIndex((item) => item.id === doc.id);
                   if (index !== -1) {
-                    draft[index] = { id: doc.id, ...doc.data() };
+                    draft[index] = { ...doc.data(), id: doc.id };
                   }
                   break;
                 case "removed":
@@ -77,7 +79,23 @@ export const chatApi = createApi({
     addChat: builder.mutation<string, Omit<ChatData, "id">>({
       async queryFn(newChat) {
         try {
-          const docRef = await createChatDoc(newChat);
+          //create chat doc
+          const chatsRef = collection(db, "chats");
+          const docRef = await addDoc(chatsRef, newChat);
+          //create message doc in chat subcollection
+          const chatMessagesRef = collection(
+            db,
+            "chats",
+            docRef.id,
+            "messages"
+          );
+          const message: MessageData = {
+            type: "config",
+            text: "Created new chat!",
+            createdAt: serverTimestamp(),
+          };
+          await addDoc(chatMessagesRef, message);
+
           return { data: docRef.id };
         } catch (error: any) {
           return { error };
@@ -86,10 +104,7 @@ export const chatApi = createApi({
     }),
 
     //update chatName field in chat doc
-    updateChatName: builder.mutation<
-      string,
-      { chatId: string; newChatName: string }
-    >({
+    updateChatName: builder.mutation<string, { chatId: string; newChatName: string }>({
       async queryFn({ chatId, newChatName }) {
         try {
           const chatRef = doc(db, "chats", chatId);

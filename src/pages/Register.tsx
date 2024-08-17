@@ -4,6 +4,7 @@ import { auth, db } from "../firebase-config";
 import { setDoc, doc } from "firebase/firestore";
 import handleAuthError from "../utils/handleAuthError";
 import AnimatedBackground from "../components/AnimatedBackground";
+import UserDocData from "../types/UserDocData";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -23,13 +24,15 @@ const Register: React.FC = () => {
         const userRef = doc(db, "users", userCredential.user.uid);
         await updateProfile(userCredential.user, { displayName: username });
         //set user doc
-        await setDoc(userRef, {
-          email: email,
+        const defaultUserDocData: UserDocData = {
+          id: "",
+          email,
           name: username,
-          invites: [],
           friends: [],
-          unseenChats: [],
-        });
+          invites: [],
+          lastSelectedChat: null,
+        };
+        await setDoc(userRef, defaultUserDocData);
         //refresh page after signing up to make App.tsx useEffect work
         location.replace("/");
       }

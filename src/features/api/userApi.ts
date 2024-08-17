@@ -31,8 +31,8 @@ export const userApi = createApi({
               updateCachedData(() => {
                 if (snapshot.exists()) {
                   const data = {
-                    id: snapshot.id,
                     ...snapshot.data(),
+                    id: snapshot.id,
                   } as UserDocData;
                   return data ? data : null;
                 }

@@ -6,8 +6,7 @@ interface UserDocData extends UserData {
   email: string;
   friends: UserData[];
   invites: UserData[];
-  unseenChats: string[];
-  lastSelectedChat: ChatData;
+  lastSelectedChat: ChatData | null;
 }
 
 export default UserDocData;

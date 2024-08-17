@@ -19,12 +19,11 @@ const Chat: React.FC = () => {
     (state: RootState) => state.selectedChat.value
   );
   const chatName: string =
-    handleChatName(selectedChat!.chatName, selectedChat!.users);
+    selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
 
   const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
+  const [updateUnseenBy] = messageApi.endpoints.updateUnseenBy.useMutation();
 
-  const [updateUsersUnseenChats] =
-    messageApi.endpoints.updateUnseenChats.useMutation();
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 
@@ -33,19 +32,18 @@ const Chat: React.FC = () => {
       //add new message doc
       const chatId = selectedChat.id || "";
       const messageData: NormalMessageData = {
-        chat: chatId,
         createdAt: serverTimestamp(),
         text: message,
         type: "normal",
         user: user.name,
         userId: user.id,
       };
-      sendMessage({message: messageData, chatId: selectedChat.id});
+      sendMessage({ message: messageData, chatId: selectedChat.id });
       //update unseenChats array in users' docs
       const userIds: string[] = selectedChat.userIds.filter(
         (userId) => userId !== user.id
       );
-      updateUsersUnseenChats({ userIds, chatId });
+      updateUnseenBy({ userIds, chatId });
       //update last message field in chat doc
       const chatRef = doc(db, "chats", chatId);
       await updateDoc(chatRef, {

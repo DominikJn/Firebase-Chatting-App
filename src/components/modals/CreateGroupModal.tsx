@@ -46,9 +46,11 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
       const userIds = finalUsers.map((finalUser) => finalUser.id);
       //create document in chats
       const newChat: ChatData = {
+        id: "",
         users: finalUsers,
         userIds,
         admins: userIds,
+        unseenBy: userIds,
         type: "group",
         chatName: "",
         lastMessage: "",

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { selectChat } from "../../features/selectedChatSlice";
 import type ChatData from "../../types/chat/ChatData";
@@ -19,20 +19,40 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
   const chatName = handleChatName(chat.chatName, chat.users);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    async function updateLastSelectedChatInFirestore(): Promise<void> {
+      if (user) {
+        const userRef = doc(db, "users", user.id);
+        await updateDoc(userRef, {
+          lastSelectedChat: chat,
+        });
+      }
+    }
+    // Add event listener to update last selected chat in database when the window unloads
+    window.addEventListener("beforeunload", updateLastSelectedChatInFirestore);
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener(
+        "beforeunload",
+        updateLastSelectedChatInFirestore
+      );
+    };
+  }, []);
+
   function checkIfChatUnseen(): boolean {
-    const chatId = chat.id || "";
-    return user ? user.unseenChats.includes(chatId) : false;
+    return user ? chat.unseenBy.includes(user?.id) : false;
+    // return false;
   }
 
   async function handleClick(): Promise<void> {
+    //update last selected chat id and remove chat from unseen chats array in user doc
     if (user) {
-      const docRef = doc(db, "users", user.id);
+      const chatRef = doc(db, "chats", chat.id);
+      await updateDoc(chatRef, {
+        unseenBy: arrayRemove(user.id),
+      });
       dispatch(selectChat(chat));
       //update last selected chat id and remove chat from unseen chats array in user doc
-      await updateDoc(docRef, {
-        lastSelectedChat: chat,
-        unseenChats: arrayRemove(chat.id),
-      });
     }
   }
 

@@ -30,8 +30,7 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
   ): Promise<void> {
     e.preventDefault();
     if (user) {
-      const messageData: NormalMessageData = {
-        chat: chatId,
+      const message: NormalMessageData = {
         createdAt: serverTimestamp(),
         text: `ChatName has been changed to ${newChatName}`,
         type: "config",
@@ -39,7 +38,7 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
         userId: user.id,
       };
       await updateChatName({ chatId, newChatName });
-      await sendMessage(messageData);
+      await sendMessage({message, chatId });
     }
   }
 
