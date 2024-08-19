@@ -10,10 +10,11 @@ import {
   arrayUnion,
   addDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase-config";
+import { db, fileDb } from "../../firebase-config";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ConfigMessageData from "../../types/message/ConfigMesageData";
 import { basicApi } from "./basicApi";
+import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
 
 export const messageApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -76,6 +77,20 @@ export const messageApi = basicApi.injectEndpoints({
       },
     }),
 
+    uploadFile: builder.mutation<string, { path: string; file: File }>({
+      async queryFn({ path, file }) {
+        try {
+          const fileRef = ref(fileDb, path);
+          await uploadBytes(fileRef, file);
+          const data = await getDownloadURL(fileRef);
+
+          return { data };
+        } catch (error) {
+          return { error };
+        }
+      },
+    }),
+
     // update unseen chats array in users' docs
     updateUnseenBy: builder.mutation<
       string,
@@ -97,6 +112,8 @@ export const messageApi = basicApi.injectEndpoints({
 
 export const {
   useGetChatMessagesQuery,
+  useGetChatFilesQuery,
   useSendMessageMutation,
+  useUploadFileMutation,
   useUpdateUnseenByMutation,
 } = messageApi;

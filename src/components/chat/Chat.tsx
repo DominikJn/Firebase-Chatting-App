@@ -11,9 +11,11 @@ import type NormalMessageData from "../../types/message/NormalMessageData";
 import {
   useSendMessageMutation,
   useUpdateUnseenByMutation,
+  useUploadFileMutation,
 } from "../../features/api/messageApi";
 import handleChatName from "../../utils/handleChatName";
 import { useGetUserQuery } from "../../features/api/userApi";
+import { v4 } from "uuid";
 
 const Chat: React.FC = () => {
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
@@ -25,24 +27,34 @@ const Chat: React.FC = () => {
     selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
 
   const [sendMessage] = useSendMessageMutation();
+  const [uploadFile] = useUploadFileMutation();
   const [updateUnseenBy] = useUpdateUnseenByMutation();
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 
-  async function handleMessageFormSubmit(message: string): Promise<void> {
-    if (user && selectedChat) {
+  async function handleMessageFormSubmit(
+    message: string,
+    file: File
+  ): Promise<void> {
+    if (user) {
+      const chatId = selectedChat?.id || "";
+      //upload file to firebase storage and return its URL
+      const fileUrl =
+        file &&
+        (await uploadFile({ path: `files/${chatId}/${v4()}`, file })).data;
       //add new message doc
-      const chatId = selectedChat.id || "";
       const messageData: NormalMessageData = {
         createdAt: serverTimestamp(),
         text: message,
         type: "normal",
         user: user.name,
         userId: user.id,
+        ...(file && { fileUrl }),
       };
-      sendMessage({ message: messageData, chatId: selectedChat.id });
-      //update unseenChats array in users' docs
-      const userIds: string[] = selectedChat.userIds.filter(
+      sendMessage({ message: messageData, chatId });
+      //update unseenBy in chat doc
+      const chatUserIds: string[] = selectedChat?.userIds || [];
+      const userIds: string[] = chatUserIds.filter(
         (userId) => userId !== user.id
       );
       updateUnseenBy({ userIds, chatId });

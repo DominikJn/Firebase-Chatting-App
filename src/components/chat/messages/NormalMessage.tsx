@@ -18,6 +18,7 @@ const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
           : "bg-gray-200"
       } text-xl px-4 py-8 rounded-lg shadow-lg break-all`}
     >
+      {message.fileUrl && <img src={message.fileUrl} alt="something went wrong" />}
       {message.text}
     </div>
   );
