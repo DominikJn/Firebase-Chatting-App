@@ -8,22 +8,24 @@ import MessageContainer from "./MessageContainer";
 import ChatHeader from "./ChatHeader";
 import ChatOptions from "./ChatOptions";
 import type NormalMessageData from "../../types/message/NormalMessageData";
-import { messageApi } from "../../features/api/messageApi";
+import {
+  useSendMessageMutation,
+  useUpdateUnseenByMutation,
+} from "../../features/api/messageApi";
 import handleChatName from "../../utils/handleChatName";
-import { userApi } from "../../features/api/userApi";
+import { useGetUserQuery } from "../../features/api/userApi";
 
 const Chat: React.FC = () => {
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const user = userApi.endpoints.getUser.useQuery().data;
+  const user = useGetUserQuery().data;
   const selectedChat = useSelector(
     (state: RootState) => state.selectedChat.value
   );
   const chatName: string =
     selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
 
-  const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
-  const [updateUnseenBy] = messageApi.endpoints.updateUnseenBy.useMutation();
-
+  const [sendMessage] = useSendMessageMutation();
+  const [updateUnseenBy] = useUpdateUnseenByMutation();
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 

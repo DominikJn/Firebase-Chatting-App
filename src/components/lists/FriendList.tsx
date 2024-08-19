@@ -5,14 +5,16 @@ import type UserData from "../../types/UserData";
 import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { selectChat } from "../../features/selectedChatSlice";
-import { userApi } from "../../features/api/userApi";
-import { chatApi } from "../../features/api/chatApi";
+import { useGetUserQuery } from "../../features/api/userApi";
+import {
+  useDeleteChatMutation,
+  useGetUserChatsQuery,
+} from "../../features/api/chatApi";
 
 const FriendList: React.FC = () => {
-  const user = userApi.endpoints.getUser.useQuery().data;
-
-  const chats = chatApi.endpoints.getUserChats.useQuery().data;
-  const [deleteChat] = chatApi.endpoints.deleteChat.useMutation();
+  const user = useGetUserQuery().data;
+  const chats = useGetUserChatsQuery().data;
+  const [deleteChat] = useDeleteChatMutation();
 
   const selectedChat = useSelector(
     (state: RootState) => state.selectedChat.value

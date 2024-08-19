@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import type UserData from "../../types/UserData";
-import { chatApi } from "../../features/api/chatApi";
 import { serverTimestamp } from "firebase/firestore";
-import { userApi } from "../../features/api/userApi";
+import { useGetUserQuery } from "../../features/api/userApi";
 import ChatData from "../../types/chat/ChatData";
+import { useAddChatMutation } from "../../features/api/chatApi";
 
 interface CreateGroupModalProps {
   setModalOpen: (arg: boolean) => void;
@@ -12,12 +12,12 @@ interface CreateGroupModalProps {
 const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   setModalOpen,
 }) => {
-  const user = userApi.endpoints.getUser.useQuery().data;
   const [searchValue, setSearchValue] = useState<string>("");
   const [filteredFriends, setFilteredFriends] = useState<UserData[]>([]);
   const [chosenFriends, setChosenFriends] = useState<UserData[]>([]);
 
-  const [addChat] = chatApi.endpoints.addChat.useMutation();
+  const user = useGetUserQuery().data;
+  const [addChat] = useAddChatMutation();
 
   useEffect(() => {
     user &&

@@ -3,7 +3,7 @@ import NormalMessage from "./messages/NormalMessage";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import ConfigMessage from "./messages/ConfigMessage";
-import { messageApi } from "../../features/api/messageApi";
+import { useGetChatMessagesQuery } from "../../features/api/messageApi";
 import NormalMessageData from "../../types/message/NormalMessageData";
 import ConfigMessageData from "../../types/message/ConfigMesageData";
 import Loading from "../Loading";
@@ -17,7 +17,7 @@ const MessageContainer: React.FC = () => {
   const chatId = selectedChat?.id || "";
 
   const { data, isLoading, isFetching, isError } =
-    messageApi.endpoints.getChatMessages.useQuery(chatId);
+    useGetChatMessagesQuery(chatId);
 
   useEffect(() => {
     scrollDown();

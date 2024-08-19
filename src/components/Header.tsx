@@ -3,14 +3,31 @@ import { Link, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase-config";
 import Searchbar from "./Searchbar";
-import { userApi } from "../features/api/userApi";
+import {
+  useGetUserQuery,
+  useUpdateUserMutation,
+} from "../features/api/userApi";
+import { basicApi } from "../features/api/basicApi";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const Header: React.FC = () => {
-  const user = userApi.endpoints.getUser.useQuery().data;
-
+  const user = useGetUserQuery().data;
+  const [updateUser] = useUpdateUserMutation();
+  const selectedChat = useSelector(
+    (state: RootState) => state.selectedChat.value
+  );
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogout = async (): Promise<void> => await signOut(auth);
+  async function handleLogout(): Promise<void> {
+    //update last selected chat in user doc
+    user && updateUser({ ...user, lastSelectedChat: selectedChat });
+    //log out authenticated user
+    await signOut(auth);
+    //clear cached data
+    dispatch(basicApi.util.resetApiState());
+  }
 
   return (
     <header className="h-[80px] p-4 border-solid border-b text-white text-2xl flex justify-between items-center">

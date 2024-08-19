@@ -3,12 +3,12 @@ import { IoIosChatboxes } from "react-icons/io";
 import { FaUserFriends } from "react-icons/fa";
 import { FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { userApi } from "../features/api/userApi";
-import { chatApi } from "../features/api/chatApi";
+import { useGetUserQuery } from "../features/api/userApi";
+import { useGetUserChatsQuery } from "../features/api/chatApi";
 
 const Navbar: React.FC = () => {
-  const user = userApi.endpoints.getUser.useQuery().data;
-  const chats = chatApi.endpoints.getUserChats.useQuery().data;
+  const user = useGetUserQuery().data;
+  const chats = useGetUserChatsQuery().data;
   const hasUnseenChats: boolean = checkForUnseenChats();
 
   function checkForUnseenChats(): boolean {

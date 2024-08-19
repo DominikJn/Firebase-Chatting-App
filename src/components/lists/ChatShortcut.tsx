@@ -7,26 +7,25 @@ import { db } from "../../firebase-config";
 import handleChatName from "../../utils/handleChatName";
 import { HiUserGroup } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
-import { userApi } from "../../features/api/userApi";
+import {
+  useGetUserQuery,
+  useUpdateUserMutation,
+} from "../../features/api/userApi";
 
 interface ChatShortcutProps {
   chat: ChatData;
 }
 
 const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
-  const user = userApi.endpoints.getUser.useQuery().data;
+  const user = useGetUserQuery().data;
+  const [updateUser] = useUpdateUserMutation();
   const isChatUnseen = checkIfChatUnseen();
   const chatName = handleChatName(chat.chatName, chat.users);
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function updateLastSelectedChatInFirestore(): Promise<void> {
-      if (user) {
-        const userRef = doc(db, "users", user.id);
-        await updateDoc(userRef, {
-          lastSelectedChat: chat,
-        });
-      }
+      user && updateUser({ ...user, lastSelectedChat: chat });
     }
     // Add event listener to update last selected chat in database when the window unloads
     window.addEventListener("beforeunload", updateLastSelectedChatInFirestore);
@@ -52,7 +51,6 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
         unseenBy: arrayRemove(user.id),
       });
       dispatch(selectChat(chat));
-      //update last selected chat id and remove chat from unseen chats array in user doc
     }
   }
 

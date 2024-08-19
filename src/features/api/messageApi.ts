@@ -1,4 +1,3 @@
-import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   collection,
   onSnapshot,
@@ -14,12 +13,14 @@ import {
 import { db } from "../../firebase-config";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ConfigMessageData from "../../types/message/ConfigMesageData";
+import { basicApi } from "./basicApi";
 
-export const messageApi = createApi({
-  reducerPath: "messageApi",
-  baseQuery: fakeBaseQuery(),
+export const messageApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({
-    getChatMessages: builder.query<(NormalMessageData | ConfigMessageData)[],string>({
+    getChatMessages: builder.query<
+      (NormalMessageData | ConfigMessageData)[],
+      string
+    >({
       queryFn: () => {
         // Return an initial empty array (or other initial state)
         return { data: [] };
@@ -54,7 +55,10 @@ export const messageApi = createApi({
       },
     }),
 
-    sendMessage: builder.mutation<string, { message: NormalMessageData | ConfigMessageData; chatId: string }>({
+    sendMessage: builder.mutation<
+      string,
+      { message: NormalMessageData | ConfigMessageData; chatId: string }
+    >({
       async queryFn({ message, chatId }) {
         try {
           //create message doc in chat subcollection
@@ -73,7 +77,10 @@ export const messageApi = createApi({
     }),
 
     // update unseen chats array in users' docs
-    updateUnseenBy: builder.mutation<string, { userIds: string[]; chatId: string }>({
+    updateUnseenBy: builder.mutation<
+      string,
+      { userIds: string[]; chatId: string }
+    >({
       async queryFn({ userIds, chatId }) {
         try {
           const chatRef = doc(db, "chats", chatId);
@@ -87,3 +94,9 @@ export const messageApi = createApi({
     }),
   }),
 });
+
+export const {
+  useGetChatMessagesQuery,
+  useSendMessageMutation,
+  useUpdateUnseenByMutation,
+} = messageApi;

@@ -1,27 +1,24 @@
-import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
-  collection,
-  onSnapshot,
-  doc,
-  deleteDoc,
-  QueryDocumentSnapshot,
-  query,
-  where,
-  updateDoc,
-  orderBy,
   addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+  query,
+  QueryDocumentSnapshot,
   serverTimestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
-import { auth, db } from "../../firebase-config";
 import ChatData from "../../types/chat/ChatData";
+import { basicApi } from "./basicApi";
+import { auth, db } from "../../firebase-config";
 import MessageData from "../../types/message/MessageData";
 
 const COLLECTION_NAME: string = "chats";
 
-// Define the API slice
-export const chatApi = createApi({
-  reducerPath: "chatApi",
-  baseQuery: fakeBaseQuery(),
+export const chatApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({
     getUserChats: builder.query<ChatData[], void>({
       queryFn: () => {
@@ -80,12 +77,12 @@ export const chatApi = createApi({
       async queryFn(newChat) {
         try {
           //create chat doc
-          const chatsRef = collection(db, "chats");
+          const chatsRef = collection(db, COLLECTION_NAME);
           const docRef = await addDoc(chatsRef, newChat);
           //create message doc in chat subcollection
           const chatMessagesRef = collection(
             db,
-            "chats",
+            COLLECTION_NAME,
             docRef.id,
             "messages"
           );
@@ -104,10 +101,13 @@ export const chatApi = createApi({
     }),
 
     //update chatName field in chat doc
-    updateChatName: builder.mutation<string, { chatId: string; newChatName: string }>({
+    updateChatName: builder.mutation<
+      string,
+      { chatId: string; newChatName: string }
+    >({
       async queryFn({ chatId, newChatName }) {
         try {
-          const chatRef = doc(db, "chats", chatId);
+          const chatRef = doc(db, COLLECTION_NAME, chatId);
           await updateDoc(chatRef, { chatName: newChatName });
           return { data: chatId };
         } catch (error: any) {
@@ -129,4 +129,12 @@ export const chatApi = createApi({
       },
     }),
   }),
+  overrideExisting: false,
 });
+
+export const {
+  useGetUserChatsQuery,
+  useAddChatMutation,
+  useUpdateChatNameMutation,
+  useDeleteChatMutation,
+} = chatApi;

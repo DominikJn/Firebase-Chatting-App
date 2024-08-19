@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { RiEditFill } from "react-icons/ri";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ChatData from "../../types/chat/ChatData";
-import { chatApi } from "../../features/api/chatApi";
-import { messageApi } from "../../features/api/messageApi";
-import { userApi } from "../../features/api/userApi";
+import { useSendMessageMutation } from "../../features/api/messageApi";
+import { useGetUserQuery } from "../../features/api/userApi";
+import { useUpdateChatNameMutation } from "../../features/api/chatApi";
 
 interface ChatOptionsProps {
   chat: ChatData;
@@ -14,9 +14,9 @@ interface ChatOptionsProps {
 const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
   const [newChatName, setNewChatName] = useState<string>(chat.chatName);
 
-  const user = userApi.endpoints.getUser.useQuery().data;
-  const [updateChatName] = chatApi.endpoints.updateChatName.useMutation();
-  const [sendMessage] = messageApi.endpoints.sendMessage.useMutation();
+  const user = useGetUserQuery().data;
+  const [updateChatName] = useUpdateChatNameMutation();
+  const [sendMessage] = useSendMessageMutation();
 
   const chatId = chat.id ?? "somerandomshit";
   const isAdmin = checkIfAdmin();
@@ -38,7 +38,7 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
         userId: user.id,
       };
       await updateChatName({ chatId, newChatName });
-      await sendMessage({message, chatId });
+      await sendMessage({ message, chatId });
     }
   }
 

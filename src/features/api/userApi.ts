@@ -1,14 +1,12 @@
-import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import UserDocData from "../../types/UserDocData";
+import { basicApi } from "./basicApi";
 
 const COLLECTION_NAME: string = "users";
 
-export const userApi = createApi({
-  reducerPath: "userApi",
-  baseQuery: fakeBaseQuery(),
+export const userApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({
     getUser: builder.query<UserDocData | null, void>({
       queryFn: () => {
@@ -52,5 +50,21 @@ export const userApi = createApi({
         unsubscribeAuth();
       },
     }),
+
+    updateUser: builder.mutation<string, UserDocData>({
+      async queryFn(user) {
+        try {
+          const userRef = doc(db, COLLECTION_NAME, user.id);
+          await updateDoc(userRef, { ...user });
+
+          return { data: "User doc updated!" };
+        } catch (error: any) {
+          return { error };
+        }
+      },
+    }),
   }),
+  overrideExisting: false,
 });
+
+export const { useGetUserQuery, useUpdateUserMutation } = userApi;

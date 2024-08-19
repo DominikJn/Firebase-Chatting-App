@@ -8,13 +8,13 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase-config";
-import { userApi } from "../../features/api/userApi";
-import { chatApi } from "../../features/api/chatApi";
-import ChatData from "../../types/chat/ChatData";
+import type ChatData from "../../types/chat/ChatData";
+import { useGetUserQuery } from "../../features/api/userApi";
+import { useAddChatMutation } from "../../features/api/chatApi";
 
 const InviteList: React.FC = () => {
-  const user = userApi.endpoints.getUser.useQuery().data;
-  const [addChat] = chatApi.endpoints.addChat.useMutation();
+  const user = useGetUserQuery().data;
+  const [addChat] = useAddChatMutation();
 
   async function handleAccept(invite: UserData): Promise<void> {
     if (user) {

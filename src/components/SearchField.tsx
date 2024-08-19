@@ -3,15 +3,15 @@ import type UserData from "../types/UserData";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { LiaUserFriendsSolid } from "react-icons/lia";
-import { userApi } from "../features/api/userApi";
+import { useGetUserQuery } from "../features/api/userApi";
 
 interface SearchFieldProps {
   searchedUser: UserData;
 }
 
 const SearchField: React.FC<SearchFieldProps> = ({ searchedUser }) => {
-  const user = userApi.endpoints.getUser.useQuery().data;
   const [isFriend, setFriend] = useState<boolean>(false);
+  const user = useGetUserQuery().data;
 
   useEffect(() => {
     setFriend(checkIfFriends());
