@@ -7,7 +7,7 @@ interface PrivateRoutesProps {
 }
 
 const PrivateRoutes: React.FC<PrivateRoutesProps> = ({ user }) => {
-  return user ? <Outlet /> : <Navigate to="/" />;
+  return user ? <Outlet /> : <Navigate to="/welcome" />;
 };
 
 export default PrivateRoutes;
