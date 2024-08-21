@@ -15,7 +15,9 @@ const MessageForm: React.FC<MessageFormProps> = ({
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    handleMessageFormSubmit(message, file as File);
+    if (message || file) {
+      handleMessageFormSubmit(message, file as File);
+    }
     setMessage("");
     setFile(null);
   }
