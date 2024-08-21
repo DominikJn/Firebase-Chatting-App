@@ -77,14 +77,17 @@ export const messageApi = basicApi.injectEndpoints({
       },
     }),
 
-    uploadFile: builder.mutation<string, { path: string; file: File }>({
+    uploadFile: builder.mutation<
+      { type: string; url: string },
+      { path: string; file: File }
+    >({
       async queryFn({ path, file }) {
         try {
           const fileRef = ref(fileDb, path);
-          await uploadBytes(fileRef, file);
-          const data = await getDownloadURL(fileRef);
+          const uploadedFile = await uploadBytes(fileRef, file);
+          const url = await getDownloadURL(fileRef);
 
-          return { data };
+          return { data: { type: uploadedFile.metadata.contentType, url } };
         } catch (error) {
           return { error };
         }

@@ -17,6 +17,10 @@ import handleChatName from "../../utils/handleChatName";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { v4 } from "uuid";
 
+type UploadedFileData = {
+  data: { type: string; url: string };
+};
+
 const Chat: React.FC = () => {
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
   const user = useGetUserQuery().data;
@@ -39,9 +43,12 @@ const Chat: React.FC = () => {
     if (user) {
       const chatId = selectedChat?.id || "";
       //upload file to firebase storage and return its URL
-      const fileUrl =
+      const uploadedFile =
         file &&
-        (await uploadFile({ path: `files/${chatId}/${v4()}`, file })).data;
+        ((await uploadFile({
+          path: `files/${chatId}/${v4()}`,
+          file,
+        })) as UploadedFileData);
       //add new message doc
       const messageData: NormalMessageData = {
         createdAt: serverTimestamp(),
@@ -49,7 +56,7 @@ const Chat: React.FC = () => {
         type: "normal",
         user: user.name,
         userId: user.id,
-        ...(file && { fileUrl }),
+        ...(file && { file: { ...uploadedFile.data } }),
       };
       sendMessage({ message: messageData, chatId });
       //update unseenBy in chat doc

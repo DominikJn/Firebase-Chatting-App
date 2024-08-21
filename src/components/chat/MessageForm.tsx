@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { GoFileDirectoryFill } from "react-icons/go";
+import File from "./File";
 
 interface MessageFormProps {
   handleMessageFormSubmit: (message: string, file: File) => Promise<void>;
@@ -12,10 +13,6 @@ const MessageForm: React.FC<MessageFormProps> = ({
   const [message, setMessage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    console.log(file);
-  }, [file]);
-
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     handleMessageFormSubmit(message, file as File);
@@ -26,8 +23,19 @@ const MessageForm: React.FC<MessageFormProps> = ({
   return (
     <form
       onSubmit={(e) => handleSubmit(e)}
-      className="h-[60px] bg-slate-900 p-2 flex justify-between items-center gap-6"
+      className="h-[60px] bg-slate-900 p-2 flex justify-between items-center gap-6 relative"
     >
+      {file && (
+        <div className="absolute bottom-[100%] bg-slate-900 text-white p-4 w-1/2 flex justify-between">
+          <div className="w-1/5 h-auto">
+            <File file={{ type: file.type, url: URL.createObjectURL(file) }} />
+            <span>{file.name}</span>
+          </div>
+          <button className="text-4xl" onClick={() => setFile(null)}>
+            X
+          </button>
+        </div>
+      )}
       <input
         type="text"
         placeholder="Write a message..."
