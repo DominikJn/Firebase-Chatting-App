@@ -16,6 +16,7 @@ import {
 import handleChatName from "../../utils/handleChatName";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { v4 } from "uuid";
+import { useGetChatByIdQuery } from "../../features/api/chatApi";
 
 type UploadedFileData = {
   data: { type: string; url: string };
@@ -23,18 +24,21 @@ type UploadedFileData = {
 
 const Chat: React.FC = () => {
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
-  const user = useGetUserQuery().data;
+
   const selectedChat = useSelector(
     (state: RootState) => state.selectedChat.value
   );
-  const chatName: string =
-    selectedChat && handleChatName(selectedChat.chatName, selectedChat.users);
-
+  const user = useGetUserQuery().data;
+  const chat = useGetChatByIdQuery(selectedChat?.id || "").data;
   const [sendMessage] = useSendMessageMutation();
   const [uploadFile] = useUploadFileMutation();
   const [updateUnseenBy] = useUpdateUnseenByMutation();
 
+  const chatName = chat ? handleChatName(chat?.chatName, chat.users) : "";
+
+
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
+
 
   async function handleMessageFormSubmit(
     message: string,
@@ -83,7 +87,7 @@ const Chat: React.FC = () => {
           toggleChatOptions={toggleChatOptions}
         />
         {areOptionsActive ? (
-          <>{selectedChat && <ChatOptions chat={selectedChat} />}</>
+          <>{chat && <ChatOptions chat={chat} />}</>
         ) : (
           <MessageContainer />
         )}

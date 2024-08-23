@@ -8,8 +8,10 @@ interface ConfigMessageProps {
 
 const ConfigMessage: React.FC<ConfigMessageProps> = ({ message }) => {
   const timestamp: Timestamp = message.createdAt as Timestamp;
-  const date = new Date(timestamp.seconds * 1000).toLocaleDateString();
-  const time = new Date(timestamp.seconds * 1000).toLocaleTimeString();
+  const date =
+    timestamp && new Date(timestamp.seconds * 1000).toLocaleDateString();
+  const time =
+    timestamp && new Date(timestamp.seconds * 1000).toLocaleTimeString();
 
   return (
     <div className="self-center flex flex-col items-center">

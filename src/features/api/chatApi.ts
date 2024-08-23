@@ -72,6 +72,36 @@ export const chatApi = basicApi.injectEndpoints({
       },
     }),
 
+    //get single chat by its id
+    getChatById: builder.query<ChatData | null, string>({
+      queryFn: () => {
+        // Return an initial empty array (or other initial state)
+        return { data: null };
+      },
+      async onCacheEntryAdded(
+        chatId,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        await cacheDataLoaded;
+
+        // Subscribe to real-time updates using onSnapshot
+        const chatsRef = doc(db, COLLECTION_NAME, chatId);
+        const unsubscribe = onSnapshot(chatsRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const data: ChatData = {
+              ...snapshot.data(),
+              id: snapshot.id,
+            } as ChatData;
+            updateCachedData(() => data);
+          }
+        });
+
+        // Clean up the listener when the cache entry is removed
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),
+
     //create chat doc in chats collection
     addChat: builder.mutation<string, Omit<ChatData, "id">>({
       async queryFn(newChat) {
@@ -101,10 +131,7 @@ export const chatApi = basicApi.injectEndpoints({
     }),
 
     //update chatName field in chat doc
-    updateChatName: builder.mutation<
-      string,
-      { chatId: string; newChatName: string }
-    >({
+    updateChatName: builder.mutation<string, { chatId: string; newChatName: string }>({
       async queryFn({ chatId, newChatName }) {
         try {
           const chatRef = doc(db, COLLECTION_NAME, chatId);
@@ -134,6 +161,7 @@ export const chatApi = basicApi.injectEndpoints({
 
 export const {
   useGetUserChatsQuery,
+  useGetChatByIdQuery,
   useAddChatMutation,
   useUpdateChatNameMutation,
   useDeleteChatMutation,

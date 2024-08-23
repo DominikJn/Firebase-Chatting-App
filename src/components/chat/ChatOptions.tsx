@@ -6,6 +6,7 @@ import type ChatData from "../../types/chat/ChatData";
 import { useSendMessageMutation } from "../../features/api/messageApi";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { useUpdateChatNameMutation } from "../../features/api/chatApi";
+import UserDocData from "../../types/UserDocData";
 
 interface ChatOptionsProps {
   chat: ChatData;
@@ -14,11 +15,10 @@ interface ChatOptionsProps {
 const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
   const [newChatName, setNewChatName] = useState<string>(chat.chatName);
 
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
   const [updateChatName] = useUpdateChatNameMutation();
   const [sendMessage] = useSendMessageMutation();
 
-  const chatId = chat.id ?? "somerandomshit";
   const isAdmin = checkIfAdmin();
 
   function checkIfAdmin(): boolean {
@@ -29,16 +29,16 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
-    if (user) {
-      const message: NormalMessageData = {
-        createdAt: serverTimestamp(),
-        text: `ChatName has been changed to ${newChatName}`,
-        type: "config",
-        user: user.name,
-        userId: user.id,
-      };
-      await updateChatName({ chatId, newChatName });
-      await sendMessage({ message, chatId });
+    const message: NormalMessageData = {
+      createdAt: serverTimestamp(),
+      text: `ChatName has been changed to ${newChatName}`,
+      type: "config",
+      user: user.name,
+      userId: user.id,
+    };
+    if (newChatName !== chat.chatName) {
+      updateChatName({ chatId: chat.id, newChatName });
+      sendMessage({ message, chatId: chat.id });
     }
   }
 
