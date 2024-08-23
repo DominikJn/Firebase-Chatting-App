@@ -10,19 +10,20 @@ import {
 import { basicApi } from "../features/api/basicApi";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
+import UserDocData from "../types/UserDocData";
 
 const Header: React.FC = () => {
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
   const [updateUser] = useUpdateUserMutation();
-  const selectedChat = useSelector(
-    (state: RootState) => state.selectedChat.value
+  const selectedChatId = useSelector(
+    (state: RootState) => state.selectedChatId.value
   );
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   async function handleLogout(): Promise<void> {
     //update last selected chat in user doc
-    user && updateUser({ ...user, lastSelectedChat: selectedChat });
+    updateUser({ ...user, lastSelectedChat: selectedChatId });
     //log out authenticated user
     await signOut(auth);
     //clear cached data

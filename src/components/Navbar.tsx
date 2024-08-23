@@ -5,9 +5,10 @@ import { FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useGetUserQuery } from "../features/api/userApi";
 import { useGetUserChatsQuery } from "../features/api/chatApi";
+import UserDocData from "../types/UserDocData";
 
 const Navbar: React.FC = () => {
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
   const chats = useGetUserChatsQuery().data;
   const hasUnseenChats: boolean = checkForUnseenChats();
 
@@ -31,7 +32,7 @@ const Navbar: React.FC = () => {
       </Link>
       <Link to="/invites" className="relative">
         <FaEnvelope />
-        {user && user.invites.length > 0 && (
+        {user.invites.length > 0 && (
           <div className="absolute -top-3 -right-3 text-sm bg-red-600 rounded-full p-1">
             {user.invites.length}
           </div>

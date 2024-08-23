@@ -17,6 +17,7 @@ import handleChatName from "../../utils/handleChatName";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { v4 } from "uuid";
 import { useGetChatByIdQuery } from "../../features/api/chatApi";
+import UserDocData from "../../types/UserDocData";
 
 type UploadedFileData = {
   data: { type: string; url: string };
@@ -25,57 +26,54 @@ type UploadedFileData = {
 const Chat: React.FC = () => {
   const [areOptionsActive, setOptionsActive] = useState<boolean>(false);
 
-  const selectedChat = useSelector(
-    (state: RootState) => state.selectedChat.value
+  const selectedChatId = useSelector(
+    (state: RootState) => state.selectedChatId.value
   );
-  const user = useGetUserQuery().data;
-  const chat = useGetChatByIdQuery(selectedChat?.id || "").data;
+  const user = useGetUserQuery().data as UserDocData;
+  const chat = useGetChatByIdQuery(selectedChatId || "").data;
+
   const [sendMessage] = useSendMessageMutation();
   const [uploadFile] = useUploadFileMutation();
   const [updateUnseenBy] = useUpdateUnseenByMutation();
 
   const chatName = chat ? handleChatName(chat?.chatName, chat.users) : "";
 
-
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
-
 
   async function handleMessageFormSubmit(
     message: string,
     file: File
   ): Promise<void> {
-    if (user) {
-      const chatId = selectedChat?.id || "";
-      //upload file to firebase storage and return its URL
-      const uploadedFile =
-        file &&
-        ((await uploadFile({
-          path: `files/${chatId}/${v4()}`,
-          file,
-        })) as UploadedFileData);
-      //add new message doc
-      const messageData: NormalMessageData = {
-        createdAt: serverTimestamp(),
-        text: message,
-        type: "normal",
-        user: user.name,
-        userId: user.id,
-        ...(file && { file: { ...uploadedFile.data } }),
-      };
-      sendMessage({ message: messageData, chatId });
-      //update unseenBy in chat doc
-      const chatUserIds: string[] = selectedChat?.userIds || [];
-      const userIds: string[] = chatUserIds.filter(
-        (userId) => userId !== user.id
-      );
-      updateUnseenBy({ userIds, chatId });
-      //update last message field in chat doc
-      const chatRef = doc(db, "chats", chatId);
-      await updateDoc(chatRef, {
-        lastMessage: message,
-        lastMessageTimestamp: serverTimestamp(),
-      });
-    }
+    const chatId = chat?.id || "";
+    //upload file to firebase storage and return its URL
+    const uploadedFile =
+      file &&
+      ((await uploadFile({
+        path: `files/${chatId}/${v4()}`,
+        file,
+      })) as UploadedFileData);
+    //add new message doc
+    const messageData: NormalMessageData = {
+      createdAt: serverTimestamp(),
+      text: message,
+      type: "normal",
+      user: user.name,
+      userId: user.id,
+      ...(file && { file: { ...uploadedFile.data } }),
+    };
+    sendMessage({ message: messageData, chatId });
+    //update unseenBy in chat doc
+    const chatUserIds: string[] = chat?.userIds || [];
+    const userIds: string[] = chatUserIds.filter(
+      (userId) => userId !== user.id
+    );
+    updateUnseenBy({ userIds, chatId });
+    //update last message field in chat doc
+    const chatRef = doc(db, "chats", chatId);
+    await updateDoc(chatRef, {
+      lastMessage: message,
+      lastMessageTimestamp: serverTimestamp(),
+    });
   }
 
   return (

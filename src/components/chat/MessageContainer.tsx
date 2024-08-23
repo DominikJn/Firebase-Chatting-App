@@ -14,17 +14,19 @@ const MessageContainer: React.FC = () => {
   const [isInScrollDownMode, setScrollDownMode] = useState<boolean>(true);
   const containerRef = useRef<HTMLElement>(null);
 
-  const selectedChat = useSelector(
-    (state: RootState) => state.selectedChat.value
+  const selectedChatId = useSelector(
+    (state: RootState) => state.selectedChatId.value
   );
-  const chatId = selectedChat?.id || "";
-
-  const { data, isLoading, isFetching, isError } =
-    useGetChatMessagesQuery(chatId);
+  const {
+    data: messages,
+    isLoading,
+    isFetching,
+    isError,
+  } = useGetChatMessagesQuery(selectedChatId || "");
 
   useEffect(() => {
     if (isInScrollDownMode) scrollDown();
-  }, [data]);
+  }, [messages]);
 
   function checkIfIsInScrollingDownMode(): void {
     const scrollTop = containerRef.current?.scrollTop as number;
@@ -52,7 +54,7 @@ const MessageContainer: React.FC = () => {
       onScroll={checkIfIsInScrollingDownMode}
     >
       {!isInScrollDownMode && <ScrollDownButton scrollDown={scrollDown} />}
-      {data?.map((message, index) =>
+      {messages?.map((message, index) =>
         message.type === "normal" ? (
           <NormalMessage key={index} message={message as NormalMessageData} />
         ) : (

@@ -4,7 +4,7 @@ import Register from "./pages/Register";
 import { Route, Routes } from "react-router";
 import StartingPage from "./pages/StartingPage";
 import { useGetUserQuery } from "./features/api/userApi";
-import { selectChat } from "./features/selectedChatSlice";
+import { selectChatId } from "./features/selectedChatIdSlice";
 import { useDispatch } from "react-redux";
 import Layout from "./Layout";
 import Loading from "./components/Loading";
@@ -20,7 +20,7 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (user) dispatch(selectChat(user.lastSelectedChat));
+    if (user) dispatch(selectChatId(user.lastSelectedChat));
   }, [user]);
 
   if (isLoading) return <Loading dark />;

@@ -4,6 +4,7 @@ import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { LiaUserFriendsSolid } from "react-icons/lia";
 import { useGetUserQuery } from "../features/api/userApi";
+import UserDocData from "../types/UserDocData";
 
 interface SearchFieldProps {
   searchedUser: UserData;
@@ -11,21 +12,20 @@ interface SearchFieldProps {
 
 const SearchField: React.FC<SearchFieldProps> = ({ searchedUser }) => {
   const [isFriend, setFriend] = useState<boolean>(false);
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
 
   useEffect(() => {
     setFriend(checkIfFriends());
   }, []);
 
   function checkIfFriends(): boolean {
-    if (user) {
-      //prevent user from inviting himself
-      if (searchedUser.id === user.id) return true;
+    //prevent user from inviting himself
+    if (searchedUser.id === user.id) return true;
 
-      for (let friend of user.friends) {
-        if (searchedUser.id === friend.id) return true;
-      }
+    for (let friend of user.friends) {
+      if (searchedUser.id === friend.id) return true;
     }
+
     return false;
   }
 

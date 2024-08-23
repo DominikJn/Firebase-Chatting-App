@@ -5,8 +5,7 @@ import { useGetUserChatsQuery } from "../../features/api/chatApi";
 
 const ChatList: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState<boolean>(false);
-  const { data, isLoading, isError } =
-    useGetUserChatsQuery();
+  const { data: chats, isLoading, isError } = useGetUserChatsQuery();
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error!</div>;
@@ -23,7 +22,7 @@ const ChatList: React.FC = () => {
           Create New Chat
         </button>
       </div>
-      {data?.map((chat, index) => (
+      {chats?.map((chat, index) => (
         <ChatShortcut key={`${index}`} chat={chat} />
       ))}
     </>

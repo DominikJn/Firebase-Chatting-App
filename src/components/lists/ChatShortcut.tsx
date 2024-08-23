@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { selectChat } from "../../features/selectedChatSlice";
+import { selectChatId } from "../../features/selectedChatIdSlice";
 import type ChatData from "../../types/chat/ChatData";
 import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
@@ -11,21 +11,24 @@ import {
   useGetUserQuery,
   useUpdateUserMutation,
 } from "../../features/api/userApi";
+import UserDocData from "../../types/UserDocData";
 
 interface ChatShortcutProps {
   chat: ChatData;
 }
 
 const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
   const [updateUser] = useUpdateUserMutation();
+
   const isChatUnseen = checkIfChatUnseen();
   const chatName = handleChatName(chat.chatName, chat.users);
+  
   const dispatch = useDispatch();
 
   useEffect(() => {
     async function updateLastSelectedChatInFirestore(): Promise<void> {
-      user && updateUser({ ...user, lastSelectedChat: chat });
+      updateUser({ ...user, lastSelectedChat: chat.id });
     }
     // Add event listener to update last selected chat in database when the window unloads
     window.addEventListener("beforeunload", updateLastSelectedChatInFirestore);
@@ -39,8 +42,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
   }, []);
 
   function checkIfChatUnseen(): boolean {
-    return user ? chat.unseenBy.includes(user?.id) : false;
-    // return false;
+    return chat.unseenBy.includes(user?.id);
   }
 
   async function handleClick(): Promise<void> {
@@ -50,7 +52,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
       await updateDoc(chatRef, {
         unseenBy: arrayRemove(user.id),
       });
-      dispatch(selectChat(chat));
+      dispatch(selectChatId(chat.id));
     }
   }
 

@@ -1,11 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-import selectedChatReducer from "./features/selectedChatSlice";
+import selectedChatIdReducer from "./features/selectedChatIdSlice";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { basicApi } from "./features/api/basicApi";
 
 export const store = configureStore({
   reducer: {
-    selectedChat: selectedChatReducer,
+    selectedChatId: selectedChatIdReducer,
     [basicApi.reducerPath]: basicApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>

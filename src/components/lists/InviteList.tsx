@@ -11,47 +11,44 @@ import { db } from "../../firebase-config";
 import type ChatData from "../../types/chat/ChatData";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { useAddChatMutation } from "../../features/api/chatApi";
+import UserDocData from "../../types/UserDocData";
 
 const InviteList: React.FC = () => {
-  const user = useGetUserQuery().data;
+  const user = useGetUserQuery().data as UserDocData;
   const [addChat] = useAddChatMutation();
 
   async function handleAccept(invite: UserData): Promise<void> {
-    if (user) {
-      //update current user profile
-      await updateDoc(doc(db, "users", user.id), {
-        friends: arrayUnion(invite),
-        invites: arrayRemove(invite),
-      });
-      //update inviting user profile
-      await updateDoc(doc(db, "users", invite.id), {
-        friends: arrayUnion({ name: user.name, id: user.id }),
-      });
-      //add chat between users
-      const users = [{ name: user.name, id: user.id }, invite];
-      const userIds = users.map((user) => user.id);
-      const newChat: ChatData = {
-        id: "",
-        users,
-        userIds,
-        admins: userIds,
-        unseenBy: userIds,
-        type: "single",
-        chatName: "",
-        lastMessage: "",
-        lastMessageTimestamp: serverTimestamp(),
-      };
-      addChat(newChat);
-    }
+    //update current user profile
+    await updateDoc(doc(db, "users", user.id), {
+      friends: arrayUnion(invite),
+      invites: arrayRemove(invite),
+    });
+    //update inviting user profile
+    await updateDoc(doc(db, "users", invite.id), {
+      friends: arrayUnion({ name: user.name, id: user.id }),
+    });
+    //add chat between users
+    const users = [{ name: user.name, id: user.id }, invite];
+    const userIds = users.map((user) => user.id);
+    const newChat: ChatData = {
+      id: "",
+      users,
+      userIds,
+      admins: userIds,
+      unseenBy: userIds,
+      type: "single",
+      chatName: "",
+      lastMessage: "",
+      lastMessageTimestamp: serverTimestamp(),
+    };
+    addChat(newChat);
   }
 
   async function handleReject(invite: UserData): Promise<void> {
-    if (user) {
-      //delete invite from invites array
-      await updateDoc(doc(db, "users", user.id), {
-        invites: arrayRemove(invite),
-      });
-    }
+    //delete invite from invites array
+    await updateDoc(doc(db, "users", user.id), {
+      invites: arrayRemove(invite),
+    });
   }
 
   return (

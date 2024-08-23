@@ -1,25 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import type ChatData from "../types/chat/ChatData";
 
 interface InitialStateSelectedChat {
-  value: ChatData | null;
+  value: string | null;
 }
 
 const initialState: InitialStateSelectedChat = {
   value: null,
 };
 
-export const selectedChatSlice = createSlice({
-  name: "selectedChat",
+export const selectedChatIdSlice = createSlice({
+  name: "selectedChatId",
   initialState,
   reducers: {
-    selectChat: (state, action: PayloadAction<ChatData | null>) => {
+    selectChatId: (state, action: PayloadAction<string | null>) => {
       state.value = action.payload;
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { selectChat } = selectedChatSlice.actions;
+export const { selectChatId } = selectedChatIdSlice.actions;
 
-export default selectedChatSlice.reducer;
+export default selectedChatIdSlice.reducer;
