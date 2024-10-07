@@ -14,7 +14,7 @@ import { db, fileDb } from "../../firebase-config";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ConfigMessageData from "../../types/message/ConfigMesageData";
 import { basicApi } from "./basicApi";
-import { getDownloadURL, listAll, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export const messageApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({

@@ -17,7 +17,11 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
     <section className="h-[60px] bg-slate-900 text-white text-2xl p-3 flex justify-between relative">
       <span>{chatName}</span>
       <button onClick={toggleChatOptions}>
-        {areOptionsActive ? <IoMdArrowBack /> : <IoSettingsOutline />}
+        {areOptionsActive ? (
+          <IoMdArrowBack data-testid="back" />
+        ) : (
+          <IoSettingsOutline data-testid="settings" />
+        )}
       </button>
     </section>
   );

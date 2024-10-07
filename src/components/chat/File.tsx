@@ -9,7 +9,7 @@ const File: React.FC<FileProps> = ({ file }) => {
   const fileExtension = file.type.split("/")[1];
 
   return (
-    <>
+    <div data-testid="file-message">
       {file.type.includes("image") ? (
         <img src={file.url} alt="something went wrong" />
       ) : (
@@ -20,7 +20,7 @@ const File: React.FC<FileProps> = ({ file }) => {
           </span>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

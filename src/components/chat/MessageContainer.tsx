@@ -49,6 +49,7 @@ const MessageContainer: React.FC = () => {
 
   return (
     <section
+      data-testid="chatContainer"
       ref={containerRef}
       className="h-full overflow-y-scroll flex flex-col gap-2 p-2 relative"
       onScroll={checkIfIsInScrollingDownMode}

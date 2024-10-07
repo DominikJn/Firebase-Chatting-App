@@ -1,5 +1,7 @@
 function handleAuthError(code: string): string {
-  return AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY[code];
+  return code in AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY
+    ? AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY[code]
+    : "Something went wrong, unknown error.";
 }
 
 const AUTH_ERROR_CODES_MAP_DO_NOT_USE_INTERNALLY: { [key: string]: string } = {

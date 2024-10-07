@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { auth } from "../firebase-config";
 import handleAuthError from "../utils/handleAuthError";
 import AnimatedBackground from "../components/AnimatedBackground";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -32,7 +33,7 @@ const Login: React.FC = () => {
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
         />
         <input
-          type="text"
+          type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
@@ -43,7 +44,7 @@ const Login: React.FC = () => {
         >
           Login
         </button>
-        <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
+        <ErrorMessage error={error} />
       </form>
     </AnimatedBackground>
   );

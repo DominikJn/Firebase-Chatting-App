@@ -2,10 +2,11 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
 import type UserData from "../../types/UserData";
-import { arrayRemove, doc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
 import { selectChatId } from "../../features/selectedChatIdSlice";
-import { useGetUserQuery } from "../../features/api/userApi";
+import {
+  useDeleteFriendMutation,
+  useGetUserQuery,
+} from "../../features/api/userApi";
 import {
   useDeleteChatMutation,
   useGetUserChatsQuery,
@@ -15,6 +16,7 @@ import UserDocData from "../../types/UserDocData";
 const FriendList: React.FC = () => {
   const user = useGetUserQuery().data as UserDocData;
   const chats = useGetUserChatsQuery().data;
+  const [deleteFriend] = useDeleteFriendMutation();
   const [deleteChat] = useDeleteChatMutation();
 
   const selectedChatId = useSelector(
@@ -27,20 +29,10 @@ const FriendList: React.FC = () => {
       chats?.filter(
         (chat) => chat.userIds.includes(friend.id) && chat.type === "single"
       )[0].id || "";
-    // update current users's profile
-    await updateDoc(doc(db, "users", user.id), {
-      friends: arrayRemove(friend),
-      unseenChats: arrayRemove(chatId),
-      lastSelectedChat: null,
-    });
-    //update deleted friend's profile
-    await updateDoc(doc(db, "users", friend.id), {
-      friends: arrayRemove({ name: user.name, id: user.id }),
-      unseenChats: arrayRemove(chatId),
-      lastSelectedChat: null,
-    });
+    //delete friend from current user and friend db docs
+    deleteFriend({ friend, chatId });
     //delete chat between users
-    deleteChat(chatId).unwrap();
+    deleteChat(chatId);
     //unselect the chat if it was with deleted friend
     if (selectedChatId === chatId) dispatch(selectChatId(null));
   }

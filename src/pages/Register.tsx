@@ -5,6 +5,7 @@ import { setDoc, doc } from "firebase/firestore";
 import handleAuthError from "../utils/handleAuthError";
 import AnimatedBackground from "../components/AnimatedBackground";
 import UserDocData from "../types/UserDocData";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -33,8 +34,6 @@ const Register: React.FC = () => {
           lastSelectedChat: null,
         };
         await setDoc(userRef, defaultUserDocData);
-        //refresh page after signing up to make App.tsx useEffect work
-        location.replace("/");
       }
     } catch (error: any) {
       setError(handleAuthError(error.code));
@@ -61,7 +60,7 @@ const Register: React.FC = () => {
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
         />
         <input
-          type="text"
+          type="password"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
           className="py-3 px-6 bg-inherit border-solid border rounded-lg"
@@ -72,7 +71,7 @@ const Register: React.FC = () => {
         >
           Register
         </button>
-        <h2 className="text-red-700 text-center text-lg h-8">{error}</h2>
+        <ErrorMessage error={error} />
       </form>
     </AnimatedBackground>
   );

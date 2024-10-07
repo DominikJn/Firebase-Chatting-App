@@ -30,7 +30,7 @@ const App: React.FC = () => {
       <Routes>
         <Route element={<PrivateRoutes user={user} />}>
           <Route path="/" element={<DashboardPage />}>
-            <Route path="/chats" element={<ChatList />} />
+            <Route path="/" element={<ChatList />} />
             <Route path="/friends" element={<FriendList />} />
             <Route path="/invites" element={<InviteList />} />
             <Route path="*" element={<ChatList />} />

@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
 import Chat from "../components/chat/Chat";
 import { Outlet } from "react-router";
 
@@ -9,9 +8,9 @@ const DashboardPage: React.FC = () => {
     <>
       <Navbar />
 
-      <Sidebar>
+      <aside className="min-w-[15%] max-w-[15%] rounded-lg text-white overflow-x-hidden overflow-y-auto">
         <Outlet />
-      </Sidebar>
+      </aside>
 
       <Chat />
     </>

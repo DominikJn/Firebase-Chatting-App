@@ -14,17 +14,18 @@ const Navbar: React.FC = () => {
 
   function checkForUnseenChats(): boolean {
     const userId = user?.id || "";
-    return chats
-      ? chats?.some((chat) => chat.unseenBy.includes(userId))
-      : false;
+    return chats ? chats.some((chat) => chat.unseenBy.includes(userId)) : false;
   }
 
   return (
-    <div className="p-6 text-4xl text-white flex flex-col gap-6">
-      <Link to="/chats" className="relative">
+    <nav className="p-6 text-4xl text-white flex flex-col gap-6">
+      <Link to="/" className="relative">
         <IoIosChatboxes />
         {hasUnseenChats && (
-          <div className="absolute -top-2 -right-2 bg-red-600 p-2 rounded-full"></div>
+          <div
+            data-testid="chats-highlight"
+            className="absolute -top-2 -right-2 bg-red-600 p-2 rounded-full"
+          ></div>
         )}
       </Link>
       <Link to="/friends">
@@ -33,12 +34,15 @@ const Navbar: React.FC = () => {
       <Link to="/invites" className="relative">
         <FaEnvelope />
         {user.invites.length > 0 && (
-          <div className="absolute -top-3 -right-3 text-sm bg-red-600 rounded-full p-1">
+          <div
+            data-testid="invites-highlight"
+            className="absolute -top-3 -right-3 text-sm bg-red-600 rounded-full p-1"
+          >
             {user.invites.length}
           </div>
         )}
       </Link>
-    </div>
+    </nav>
   );
 };
 

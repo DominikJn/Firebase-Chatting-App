@@ -28,7 +28,10 @@ const MessageForm: React.FC<MessageFormProps> = ({
       className="h-[60px] bg-slate-900 p-2 flex justify-between items-center gap-6 relative"
     >
       {file && (
-        <div className="absolute bottom-[100%] bg-slate-900 text-white p-4 w-1/2 flex justify-between">
+        <div
+          data-testid="file-view"
+          className="absolute bottom-[100%] bg-slate-900 text-white p-4 w-1/2 flex justify-between"
+        >
           <div className="w-1/5 h-auto">
             <File file={{ type: file.type, url: URL.createObjectURL(file) }} />
             <span>{file.name}</span>
@@ -49,13 +52,18 @@ const MessageForm: React.FC<MessageFormProps> = ({
         <GoFileDirectoryFill />
         <input
           type="file"
-          id="file"
+          data-testid="file"
+          id="file" //needed for label to be able to click on it
           className="hidden"
           value={""}
           onChange={(e) => e.target.files && setFile(e.target.files[0])}
         />
       </label>
-      <button type="submit" className="text-white text-4xl">
+      <button
+        data-testid="submit"
+        type="submit"
+        className="text-white text-4xl"
+      >
         <IoSend />
       </button>
     </form>

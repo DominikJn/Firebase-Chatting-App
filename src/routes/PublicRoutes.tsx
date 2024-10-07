@@ -7,7 +7,7 @@ interface PublicRoutesProps {
 }
 
 const PublicRoutes: React.FC<PublicRoutesProps> = ({ user }) => {
-  return !user ? <Outlet /> : <Navigate to="/chats" />;
+  return !user ? <Outlet /> : <Navigate to="/" />;
 };
 
 export default PublicRoutes;

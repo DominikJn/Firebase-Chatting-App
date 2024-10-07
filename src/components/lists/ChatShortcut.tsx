@@ -23,7 +23,7 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
 
   const isChatUnseen = checkIfChatUnseen();
   const chatName = handleChatName(chat.chatName, chat.users);
-  
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -62,11 +62,18 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
       className={`${
         isChatUnseen && "font-bold"
       } cursor-pointer px-2 py-2 border-solid border-b flex flex-wrap`}
+      data-testid="container"
     >
       <div className="text-3xl flex items-center gap-2 px-2 text-slate-700">
-        {chat.type === "single" ? <CgProfile /> : <HiUserGroup />}
+        {chat.type === "single" ? (
+          <CgProfile data-testid="single" />
+        ) : (
+          <HiUserGroup data-testid="group" />
+        )}
         {isChatUnseen && (
-          <div className="text-red-600 text-sm">New messages</div>
+          <div className="text-red-600 text-sm" data-testid="unseen">
+            New messages
+          </div>
         )}
       </div>
       <div className="flex flex-col">
