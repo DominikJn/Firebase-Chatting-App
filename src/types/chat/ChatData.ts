@@ -1,11 +1,9 @@
 import { FieldValue, Timestamp } from "firebase/firestore";
-import type UserData from "../UserData";
 import type ChatGroupType from "./ChatGroupType";
 
 type ChatData = {
   id: string;
-  userIds: string[];
-  users: UserData[];
+  users: string[];
   admins: string[];
   unseenBy: string[];
   type: ChatGroupType;

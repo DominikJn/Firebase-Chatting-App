@@ -13,11 +13,14 @@ import {
   useUpdateUnseenByMutation,
   useUploadFileMutation,
 } from "../../features/api/messageApi";
-import handleChatName from "../../utils/handleChatName";
-import { useGetUserQuery } from "../../features/api/userApi";
+import {
+  useGetUserQuery,
+  useGetUsersActivityStatusQuery,
+} from "../../features/api/userApi";
 import { v4 } from "uuid";
 import { useGetChatByIdQuery } from "../../features/api/chatApi";
 import UserDocData from "../../types/UserDocData";
+import handleChatName from "../../utils/handleChatName";
 
 type UploadedFileData = {
   data: { type: string; url: string };
@@ -31,12 +34,15 @@ const Chat: React.FC = () => {
   );
   const user = useGetUserQuery().data as UserDocData;
   const chat = useGetChatByIdQuery(selectedChatId || "").data;
+  const chatUsers = useGetUsersActivityStatusQuery(chat?.users || []).data;
+
+  const chatName = chat
+    ? handleChatName(chat.chatName, chatUsers || [], chat.type)
+    : "";
 
   const [sendMessage] = useSendMessageMutation();
   const [uploadFile] = useUploadFileMutation();
   const [updateUnseenBy] = useUpdateUnseenByMutation();
-
-  const chatName = chat ? handleChatName(chat?.chatName, chat.users) : "";
 
   const toggleChatOptions = (): void => setOptionsActive(!areOptionsActive);
 
@@ -63,7 +69,7 @@ const Chat: React.FC = () => {
     };
     sendMessage({ message: messageData, chatId });
     //update unseenBy in chat doc
-    const chatUserIds: string[] = chat?.userIds || [];
+    const chatUserIds: string[] = chat?.users || [];
     const userIds: string[] = chatUserIds.filter(
       (userId) => userId !== user.id
     );

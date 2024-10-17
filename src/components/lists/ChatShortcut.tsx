@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useDispatch } from "react-redux";
 import { selectChatId } from "../../features/selectedChatIdSlice";
 import type ChatData from "../../types/chat/ChatData";
@@ -9,9 +9,10 @@ import { HiUserGroup } from "react-icons/hi";
 import { CgProfile } from "react-icons/cg";
 import {
   useGetUserQuery,
-  useUpdateUserMutation,
+  useGetUsersActivityStatusQuery,
 } from "../../features/api/userApi";
 import UserDocData from "../../types/UserDocData";
+import ActivityDot from "../ActivityDot";
 
 interface ChatShortcutProps {
   chat: ChatData;
@@ -19,27 +20,12 @@ interface ChatShortcutProps {
 
 const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
   const user = useGetUserQuery().data as UserDocData;
-  const [updateUser] = useUpdateUserMutation();
+  const { data: chatUsers } = useGetUsersActivityStatusQuery(chat.users);
 
   const isChatUnseen = checkIfChatUnseen();
-  const chatName = handleChatName(chat.chatName, chat.users);
+  const chatName = handleChatName(chat.chatName, chatUsers || [], chat.type);
 
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    async function updateLastSelectedChatInFirestore(): Promise<void> {
-      updateUser({ ...user, lastSelectedChat: chat.id });
-    }
-    // Add event listener to update last selected chat in database when the window unloads
-    window.addEventListener("beforeunload", updateLastSelectedChatInFirestore);
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener(
-        "beforeunload",
-        updateLastSelectedChatInFirestore
-      );
-    };
-  }, []);
 
   function checkIfChatUnseen(): boolean {
     return chat.unseenBy.includes(user?.id);
@@ -64,12 +50,17 @@ const ChatShortcut: React.FC<ChatShortcutProps> = ({ chat }) => {
       } cursor-pointer px-2 py-2 border-solid border-b flex flex-wrap`}
       data-testid="container"
     >
-      <div className="text-3xl flex items-center gap-2 px-2 text-slate-700">
-        {chat.type === "single" ? (
-          <CgProfile data-testid="single" />
-        ) : (
-          <HiUserGroup data-testid="group" />
-        )}
+      <div className="text-3xl flex items-center gap-2 px-2 text-slate-700 relative">
+        <div className="relative">
+          {chat.type === "single" ? (
+            <CgProfile data-testid="single" />
+          ) : (
+            <HiUserGroup data-testid="group" />
+          )}
+          {chatUsers?.some(
+            (chatUser) => chatUser!.status!.isActive && chatUser.id !== user.id
+          ) && <ActivityDot />}
+        </div>
         {isChatUnseen && (
           <div className="text-red-600 text-sm" data-testid="unseen">
             New messages

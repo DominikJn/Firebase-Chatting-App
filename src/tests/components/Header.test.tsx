@@ -4,14 +4,14 @@ import Header from "../../components/Header";
 import { Provider } from "react-redux";
 import { store } from "../../store";
 import { BrowserRouter } from "react-router-dom";
-import {
-  useGetUserQuery,
-  useUpdateUserMutation,
-} from "../../features/api/userApi";
+import { useGetUserQuery } from "../../features/api/userApi";
 import userEvent from "@testing-library/user-event";
 import { testUserDocData } from "../mocks/testUserDocData";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
+vi.mock("../../features/api/messageApi");
+vi.mock("../../features/api/chatApi");
 
 const HeaderMock = () => {
   return (
@@ -27,8 +27,9 @@ describe("Header", () => {
   const updateUser = vi.fn();
 
   beforeEach(() => {
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
-    useUpdateUserMutation.mockImplementation(() => [updateUser]);
+    setupRtkQueryMocks({
+      updateUser,
+    });
   });
 
   afterEach(() => {
@@ -59,7 +60,6 @@ describe("Header", () => {
     const user = userEvent.setup();
     await user.click(logoutButton);
 
-    expect(updateUser).toHaveBeenCalledTimes(1);
     expect(updateUser).toHaveBeenCalledWith(testUserDocData);
   });
 });

@@ -2,7 +2,7 @@ import UserData from "./UserData";
 
 interface UserDocData extends UserData {
   email: string;
-  friends: UserData[];
+  friends: string[];
   invites: UserData[];
   lastSelectedChat: string | null;
 }

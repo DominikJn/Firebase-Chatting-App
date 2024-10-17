@@ -3,33 +3,12 @@ import { render, screen } from "@testing-library/react";
 import DashboardPage from "../../pages/DashboardPage";
 import { store } from "../../store";
 import { Provider } from "react-redux";
-import {
-  useAcceptInviteMutation,
-  useDeleteFriendMutation,
-  useGetUserQuery,
-  useRejectInviteMutation,
-  useUpdateUserMutation,
-} from "../../features/api/userApi";
-import {
-  useAddChatMutation,
-  useDeleteChatMutation,
-  useGetChatByIdQuery,
-  useGetUserChatsQuery,
-} from "../../features/api/chatApi";
-import {
-  useGetChatMessagesQuery,
-  useSendMessageMutation,
-  useUpdateUnseenByMutation,
-  useUploadFileMutation,
-} from "../../features/api/messageApi";
-import { testUserDocData } from "../mocks/testUserDocData";
-import { testGroupChatData } from "../mocks/testChatData";
-import { spammedTestMessages } from "../mocks/testMessages";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import ChatList from "../../components/lists/ChatList";
 import FriendList from "../../components/lists/FriendList";
 import InviteList from "../../components/lists/InviteList";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
 vi.mock("../../features/api/messageApi");
@@ -53,33 +32,8 @@ const DashboardPageMock = () => {
 };
 
 describe("DashboardPage", () => {
-  const sendMessage = vi.fn();
-  const uploadFile = vi.fn();
-  const updateUnseenBy = vi.fn();
-  const updateUser = vi.fn();
-  const deleteChat = vi.fn();
-  const deleteFriend = vi.fn();
-  const addChat = vi.fn();
-  const acceptInvite = vi.fn();
-  const rejectInvite = vi.fn();
-
   beforeEach(() => {
-    //queries
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
-    useGetUserChatsQuery.mockReturnValue({ data: [testGroupChatData] });
-    useGetChatByIdQuery.mockReturnValue({ data: testGroupChatData });
-    useGetChatMessagesQuery.mockReturnValue({ data: spammedTestMessages });
-    //mutations
-    sendMessage.mockResolvedValue({ data: { message: "She is muh queen!!" } });
-    useSendMessageMutation.mockImplementation(() => [sendMessage]);
-    useUploadFileMutation.mockImplementation(() => [uploadFile]);
-    useUpdateUnseenByMutation.mockImplementation(() => [updateUnseenBy]);
-    useUpdateUserMutation.mockImplementation(() => [updateUser]);
-    useDeleteChatMutation.mockImplementation(() => [deleteChat]);
-    useDeleteFriendMutation.mockImplementation(() => [deleteFriend]);
-    useAddChatMutation.mockImplementation(() => [addChat]);
-    useAcceptInviteMutation.mockImplementation(() => [acceptInvite]);
-    useRejectInviteMutation.mockImplementation(() => [rejectInvite]);
+    setupRtkQueryMocks();
   });
 
   afterEach(() => {

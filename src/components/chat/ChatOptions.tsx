@@ -7,6 +7,7 @@ import { useSendMessageMutation } from "../../features/api/messageApi";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { useUpdateChatNameMutation } from "../../features/api/chatApi";
 import UserDocData from "../../types/UserDocData";
+import ChatUsers from "./ChatUsers";
 
 interface ChatOptionsProps {
   chat: ChatData;
@@ -43,30 +44,33 @@ const ChatOptions: React.FC<ChatOptionsProps> = ({ chat }) => {
   }
 
   return (
-    <div className="h-full bg-slate-800 text-white">
+    <section className="h-full bg-slate-800 text-white flex flex-col gap-4">
       {isAdmin ? (
         <>
           <h3 className="text-center text-4xl">Chat Options</h3>
-          <span>Change Chat Name</span>
-          <form
-            onSubmit={(e) => changeChatname(e)}
-            className="flex items-center gap-2 bg-slate-600 w-fit p-4 rounded-r-full"
-          >
-            <input
-              type="text"
-              className="text-black p-1 rounded-full"
-              value={newChatName}
-              onChange={(e) => setNewChatName(e.target.value)}
-            />
-            <button type="submit" className="text-3xl">
-              <RiEditFill />
-            </button>
-          </form>
+          <div>
+            <h4 className="text-2xl">Change Chat Name</h4>
+            <form
+              onSubmit={(e) => changeChatname(e)}
+              className="flex items-center gap-2 bg-slate-600 w-fit p-4 rounded-r-full"
+            >
+              <input
+                type="text"
+                className="text-black p-1 rounded-full"
+                value={newChatName}
+                onChange={(e) => setNewChatName(e.target.value)}
+              />
+              <button type="submit" className="text-3xl">
+                <RiEditFill />
+              </button>
+            </form>
+          </div>
         </>
       ) : (
         <h3>You have no access to chat settings.</h3>
       )}
-    </div>
+      <ChatUsers userIds={chat.users} />
+    </section>
   );
 };
 

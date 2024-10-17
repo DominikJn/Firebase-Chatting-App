@@ -1,13 +1,15 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import SearchField from "../../components/SearchField";
-import { useGetUserQuery } from "../../features/api/userApi";
 import { Provider } from "react-redux";
 import { store } from "../../store";
-import { testUserDocData } from "../mocks/testUserDocData";
 import UserData from "../../types/UserData";
+import userEvent from "@testing-library/user-event";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
+vi.mock("../../features/api/messageApi");
+vi.mock("../../features/api/chatApi");
 
 const SearchFieldMock = ({ searchedUser }: { searchedUser: UserData }) => {
   return (
@@ -18,8 +20,12 @@ const SearchFieldMock = ({ searchedUser }: { searchedUser: UserData }) => {
 };
 
 describe("SearchField", () => {
+  const sendInvite = vi.fn();
+
   beforeEach(() => {
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
+    setupRtkQueryMocks({
+      sendInvite,
+    });
   });
 
   afterEach(() => {
@@ -31,20 +37,28 @@ describe("SearchField", () => {
       <SearchFieldMock searchedUser={{ name: "Ramsay Bolton", id: "3" }} />
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(/Ramsay Bolton/i)).toBeInTheDocument();
-      expect(screen.getByText("+")).toBeInTheDocument();
-    });
+    expect(screen.getByText(/Ramsay Bolton/i)).toBeInTheDocument();
+    expect(screen.getByText("+")).toBeInTheDocument();
   });
 
   it("should render searched user with friend icon if user is friend", async () => {
-    const { container } = render(
+    render(
       <SearchFieldMock searchedUser={{ name: "Samwell Tarly", id: "2" }} />
     );
 
-    await waitFor(() => {
-      expect(screen.getByText(/Samwell Tarly/i)).toBeInTheDocument();
-      expect(container.querySelector("svg")).toBeInTheDocument();
-    });
+    expect(screen.getByText(/Samwell Tarly/i)).toBeInTheDocument();
+    expect(await screen.findByTestId("is-friend-icon")).toBeInTheDocument();
+  });
+
+  it("should call sendInvite mutation upon sending friend invitation", async () => {
+    const user = userEvent.setup();
+    render(
+      <SearchFieldMock searchedUser={{ name: "Ramsay Bolton", id: "3" }} />
+    );
+
+    const button = screen.getByRole("button");
+    await user.click(button);
+
+    expect(sendInvite).toHaveBeenCalledOnce();
   });
 });

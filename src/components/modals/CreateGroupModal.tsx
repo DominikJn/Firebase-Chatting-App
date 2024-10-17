@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import type UserData from "../../types/UserData";
 import { serverTimestamp } from "firebase/firestore";
-import { useGetUserQuery } from "../../features/api/userApi";
+import {
+  useGetUserQuery,
+  useGetUsersActivityStatusQuery,
+} from "../../features/api/userApi";
 import ChatData from "../../types/chat/ChatData";
 import { useAddChatMutation } from "../../features/api/chatApi";
 import UserDocData from "../../types/UserDocData";
@@ -18,14 +21,23 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
   const [chosenFriends, setChosenFriends] = useState<UserData[]>([]);
 
   const user = useGetUserQuery().data as UserDocData;
+  const { data: friends, isLoading } = useGetUsersActivityStatusQuery(
+    user.friends
+  );
   const [addChat] = useAddChatMutation();
 
+  //ensure that friends are fetched
   useEffect(() => {
-    setFilteredFriends(
-      user.friends.filter((friend) =>
+    if (friends) setFilteredFriends(friends);
+  }, [friends]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const filteredFriends: UserData[] = friends!.filter((friend) =>
         friend.name.includes(searchValue.toLowerCase())
-      )
-    );
+      );
+      setFilteredFriends(filteredFriends);
+    }
   }, [searchValue]);
 
   function handleChoose(friend: UserData): void {
@@ -42,14 +54,13 @@ const CreateGroupModal: React.FC<CreateGroupModalProps> = ({
 
   function handleGroupCreation(): void {
     const finalUsers = [...chosenFriends, { name: user.name, id: user.id }];
-    const userIds = finalUsers.map((finalUser) => finalUser.id);
+    const users = finalUsers.map((finalUser) => finalUser.id);
     //create document in chats
     const newChat: ChatData = {
       id: "",
-      users: finalUsers,
-      userIds,
-      admins: userIds,
-      unseenBy: userIds,
+      users,
+      admins: users,
+      unseenBy: users,
       type: "group",
       chatName: "",
       lastMessage: "",

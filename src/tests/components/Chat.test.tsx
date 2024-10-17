@@ -3,19 +3,13 @@ import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import Chat from "../../components/chat/Chat";
 import { store } from "../../store";
-import { useGetUserQuery } from "../../features/api/userApi";
-import { useGetChatByIdQuery } from "../../features/api/chatApi";
-import {
-  useSendMessageMutation,
-  useUploadFileMutation,
-  useUpdateUnseenByMutation,
-  useGetChatMessagesQuery,
-} from "../../features/api/messageApi";
+import { useGetChatMessagesQuery } from "../../features/api/messageApi";
 import { testUserDocData } from "../mocks/testUserDocData";
 import { testGroupChatData } from "../mocks/testChatData";
-import { testMessages, spammedTestMessages } from "../mocks/testMessages";
+import { spammedTestMessages } from "../mocks/testMessages";
 import userEvent from "@testing-library/user-event";
 import { serverTimestamp } from "firebase/firestore";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
 vi.mock("../../features/api/messageApi");
@@ -32,22 +26,15 @@ const ChatMock = () => {
 describe("Chat", () => {
   const sendMessage = vi.fn();
   const uploadFile = vi.fn();
-  const updateUnseenBy = vi.fn();
 
   global.URL.createObjectURL = vi.fn();
   const file = new File(["hello"], "hello.png", { type: "image/png" });
 
   beforeEach(() => {
-    //queries
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
-    useGetChatByIdQuery.mockReturnValue({ data: testGroupChatData });
-    useGetChatMessagesQuery.mockReturnValue({ data: spammedTestMessages });
-    //mutations
-    sendMessage.mockResolvedValue({ data: { message: "She is muh queen!!" } });
-    uploadFile.mockResolvedValue({ data: { file } });
-    useSendMessageMutation.mockImplementation(() => [sendMessage]);
-    useUploadFileMutation.mockImplementation(() => [uploadFile]);
-    useUpdateUnseenByMutation.mockImplementation(() => [updateUnseenBy]);
+    setupRtkQueryMocks({
+      sendMessage,
+      uploadFile,
+    });
   });
 
   afterEach(() => {

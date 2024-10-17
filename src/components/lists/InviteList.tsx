@@ -19,14 +19,12 @@ const InviteList: React.FC = () => {
   async function handleAccept(invite: UserData): Promise<void> {
     acceptInvite(invite);
     //add chat between users
-    const users = [{ name: user.name, id: user.id }, invite];
-    const userIds = users.map((user) => user.id);
+    const users: string[] = [user.id, invite.id];
     const newChat: ChatData = {
       id: "",
       users,
-      userIds,
-      admins: userIds,
-      unseenBy: userIds,
+      admins: users,
+      unseenBy: users,
       type: "single",
       chatName: "",
       lastMessage: "",

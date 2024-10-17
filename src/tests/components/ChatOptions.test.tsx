@@ -4,16 +4,25 @@ import { Provider } from "react-redux";
 import { store } from "../../store";
 import ChatOptions from "../../components/chat/ChatOptions";
 import ChatData from "../../types/chat/ChatData";
-import { testUsersArray } from "../mocks/testUsersArray";
-import { serverTimestamp } from "firebase/firestore";
 import { useGetUserQuery } from "../../features/api/userApi";
-import { useUpdateChatNameMutation } from "../../features/api/chatApi";
-import { useSendMessageMutation } from "../../features/api/messageApi";
 import userEvent from "@testing-library/user-event";
+import { testGroupChatData } from "../mocks/testChatData";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
 vi.mock("../../features/api/chatApi");
 vi.mock("../../features/api/messageApi");
+
+vi.mock("firebase/firestore", () => {
+  return {
+    serverTimestamp: vi.fn().mockImplementation(() => {
+      return {
+        toDate: () => new Date("2024-01-01T00:00:00Z"), // Example fixed date
+      };
+    }),
+    getFirestore: vi.fn(), // Mock the getFirestore function
+  };
+});
 
 const ChatOptionsMock = ({ chat }: { chat: ChatData }) => {
   return (
@@ -24,26 +33,15 @@ const ChatOptionsMock = ({ chat }: { chat: ChatData }) => {
 };
 
 describe("ChatOptions", () => {
-  const chat: ChatData = {
-    id: "123",
-    userIds: ["2"],
-    users: testUsersArray,
-    admins: ["2"],
-    unseenBy: ["2"],
-    type: "group",
-    chatName: "Robb & Jon",
-    lastMessage: "Winter is coming Jon!",
-    lastMessageTimestamp: serverTimestamp(),
-  };
-
   const sendMessage = vi.fn();
   const updateChatName = vi.fn();
 
   //mock value for every case where user is admin
   beforeEach(() => {
-    useGetUserQuery.mockReturnValue({ data: { name: "Robb Stark", id: "2" } });
-    useSendMessageMutation.mockImplementation(() => [sendMessage]);
-    useUpdateChatNameMutation.mockImplementation(() => [updateChatName]);
+    setupRtkQueryMocks({
+      sendMessage,
+      updateChatName,
+    });
   });
 
   afterEach(() => {
@@ -51,13 +49,13 @@ describe("ChatOptions", () => {
   });
 
   it("should render chat settings if user is in admin array", () => {
-    render(<ChatOptionsMock chat={chat} />);
+    render(<ChatOptionsMock chat={testGroupChatData} />);
 
     expect(screen.getByText(/chat options/i)).toBeInTheDocument();
   });
 
   it("should call mutations after form submition", async () => {
-    render(<ChatOptionsMock chat={chat} />);
+    render(<ChatOptionsMock chat={testGroupChatData} />);
 
     const input = screen.getByRole("textbox");
     const user = userEvent.setup();
@@ -70,9 +68,11 @@ describe("ChatOptions", () => {
   });
 
   it("should render authorization message if user is NOT in admin array", () => {
-    useGetUserQuery.mockReturnValue({ data: { name: "Jon Snow", id: "1" } });
+    useGetUserQuery.mockReturnValue({
+      data: { name: "Jon Snow", id: "noAccessRandomId" },
+    });
 
-    render(<ChatOptionsMock chat={chat} />);
+    render(<ChatOptionsMock chat={testGroupChatData} />);
 
     expect(screen.getByText(/you have no access/i)).toBeInTheDocument();
   });

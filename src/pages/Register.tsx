@@ -26,12 +26,16 @@ const Register: React.FC = () => {
         await updateProfile(userCredential.user, { displayName: username });
         //set user doc
         const defaultUserDocData: UserDocData = {
-          id: "",
+          id: userCredential.user.uid,
           email,
           name: username,
           friends: [],
           invites: [],
           lastSelectedChat: null,
+          status: {
+            isActive: true,
+            lastOnline: null,
+          },
         };
         await setDoc(userRef, defaultUserDocData);
       }

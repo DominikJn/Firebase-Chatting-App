@@ -8,7 +8,7 @@ export default function checkIfFriends(
   if (searchedUserId === user.id) return true;
 
   for (let friend of user.friends) {
-    if (searchedUserId === friend.id) return true;
+    if (searchedUserId === friend) return true;
   }
 
   return false;

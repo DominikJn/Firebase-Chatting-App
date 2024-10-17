@@ -6,7 +6,7 @@ describe("checkIfFriends", () => {
     id: "1",
     name: "Jon Snow",
     email: "jonsnow@winterfell.com",
-    friends: [{ id: "2", name: "Samwell Tarly" }],
+    friends: ["2"],
     invites: [],
     lastSelectedChat: null,
   };

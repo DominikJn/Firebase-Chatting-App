@@ -1,6 +1,12 @@
-type UserData = {
-    name: string,
-    id: string
-}
+import { FieldValue, Timestamp } from "firebase/firestore";
 
-export default UserData
+type UserData = {
+  name: string;
+  id: string;
+  status?: {
+    isActive: boolean;
+    lastOnline: Timestamp | FieldValue | null;
+  };
+};
+
+export default UserData;

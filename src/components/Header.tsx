@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import UserDocData from "../types/UserDocData";
 import Button from "./Button";
+import { serverTimestamp } from "firebase/firestore";
 
 const Header: React.FC = () => {
   const user = useGetUserQuery().data as UserDocData;
@@ -24,7 +25,11 @@ const Header: React.FC = () => {
 
   async function handleLogout(): Promise<void> {
     //update last selected chat in user doc
-    updateUser({ ...user, lastSelectedChat: selectedChatId });
+    updateUser({
+      ...user,
+      lastSelectedChat: selectedChatId,
+      status: { isActive: false, lastOnline: serverTimestamp() },
+    });
     //log out authenticated user
     await signOut(auth);
     //clear cached data

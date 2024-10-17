@@ -3,13 +3,12 @@ import { render, screen } from "@testing-library/react";
 import CreateGroupModal from "../../components/modals/CreateGroupModal";
 import { Provider } from "react-redux";
 import { store } from "../../store";
-import { useGetUserQuery } from "../../features/api/userApi";
-import { useAddChatMutation } from "../../features/api/chatApi";
-import { testUserDocData } from "../mocks/testUserDocData";
 import { testUsersArray } from "../mocks/testUsersArray";
 import userEvent from "@testing-library/user-event";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/userApi");
+vi.mock("../../features/api/messageApi");
 vi.mock("../../features/api/chatApi");
 
 const CreateGroupModalMock = ({
@@ -29,10 +28,9 @@ describe("CreateGroupModal", () => {
   const addChat = vi.fn();
 
   beforeEach(() => {
-    useGetUserQuery.mockReturnValue({
-      data: { ...testUserDocData, friends: testUsersArray },
+    setupRtkQueryMocks({
+      addChat,
     });
-    useAddChatMutation.mockImplementation(() => [addChat]);
   });
 
   afterEach(() => {

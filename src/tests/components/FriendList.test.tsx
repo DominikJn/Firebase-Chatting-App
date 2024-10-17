@@ -2,20 +2,16 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { store } from "../../store";
-import {
-  useDeleteChatMutation,
-  useGetUserChatsQuery,
-} from "../../features/api/chatApi";
-import {
-  useDeleteFriendMutation,
-  useGetUserQuery,
-} from "../../features/api/userApi";
-import { testUserDocData } from "../mocks/testUserDocData";
+import { useGetUsersActivityStatusQuery } from "../../features/api/userApi";
 import FriendList from "../../components/lists/FriendList";
-import { testGroupChatData, testSingleChatData } from "../mocks/testChatData";
 import userEvent from "@testing-library/user-event";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
+import { testUsersArray } from "../mocks/testUsersArray";
+import { testUserDocData } from "../mocks/testUserDocData";
+import UserData from "../../types/UserData";
 
 vi.mock("../../features/api/chatApi");
+vi.mock("../../features/api/messageApi");
 vi.mock("../../features/api/userApi");
 
 const FriendListMock = () => {
@@ -30,13 +26,20 @@ describe("FriendList", () => {
   const deleteChat = vi.fn();
   const deleteFriend = vi.fn();
 
+  const fetchedFriends: UserData[] = testUsersArray.filter((user) =>
+    testUserDocData.friends.includes(user.id)
+  );
+  console.log(fetchedFriends);
+
   beforeEach(() => {
-    useGetUserChatsQuery.mockReturnValue({
-      data: [testGroupChatData, testSingleChatData],
+    setupRtkQueryMocks({
+      deleteChat,
+      deleteFriend,
     });
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
-    useDeleteChatMutation.mockImplementation(() => [deleteChat]);
-    useDeleteFriendMutation.mockImplementation(() => [deleteFriend]);
+    // manually return user with ID === 2
+    useGetUsersActivityStatusQuery.mockReturnValue({
+      data: fetchedFriends,
+    });
   });
 
   afterEach(() => {
@@ -46,8 +49,20 @@ describe("FriendList", () => {
   it("should render chats in form of list", () => {
     render(<FriendListMock />);
 
-    testUserDocData.friends.forEach((friend) => {
-      expect(screen.getByText(friend.name)).toBeInTheDocument();
+    fetchedFriends.forEach((friend) => {
+      expect(screen.getByText(friend?.name)).toBeInTheDocument();
+    });
+  });
+
+  it("should render green activity dot if user is active", () => {
+    render(<FriendListMock />);
+
+    fetchedFriends.forEach((friend) => {
+      if (friend.status?.isActive) {
+        expect(
+          screen.getByTestId(`active-dot-friend-${friend.name}`)
+        ).toBeInTheDocument();
+      }
     });
   });
 
@@ -55,12 +70,13 @@ describe("FriendList", () => {
     const user = userEvent.setup();
     render(<FriendListMock />);
 
-    const deleteButton = screen.getByText(/x/i);
-    await user.click(deleteButton);
+    const deleteButton = screen.getAllByText(/x/i);
+    //click the button of jon's first in array friend
+    await user.click(deleteButton[0]);
 
     expect(deleteChat).toHaveBeenCalledWith("332211");
     expect(deleteFriend).toHaveBeenCalledWith({
-      friend: testUserDocData.friends[0],
+      friendId: testUsersArray[0].id,
       chatId: "332211",
     });
   });

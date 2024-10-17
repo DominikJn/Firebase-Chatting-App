@@ -36,7 +36,7 @@ export const chatApi = basicApi.injectEndpoints({
         const userId = auth.currentUser?.uid;
         const queryChats = query(
           chatsRef,
-          where("userIds", "array-contains", userId),
+          where("users", "array-contains", userId),
           orderBy("lastMessageTimestamp", "desc")
         );
         const unsubscribe = onSnapshot(queryChats, (snapshot) => {
