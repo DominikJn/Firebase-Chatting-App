@@ -7,19 +7,23 @@ import { Provider } from "react-redux";
 import { store } from "../../store";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { testUserDocData } from "../mocks/testUserDocData";
+import { MessageEditProvider } from "../../components/context/MessageEditContext";
 
 vi.mock("../../features/api/userApi");
 
 const NormalMessageMock = ({ message }: { message: NormalMessageData }) => {
   return (
     <Provider store={store}>
-      <NormalMessage message={message} />
+      <MessageEditProvider>
+        <NormalMessage message={message} />
+      </MessageEditProvider>
     </Provider>
   );
 };
 
 describe("NormalMessage", () => {
   const message: NormalMessageData = {
+    id: "",
     user: "Jon Snow",
     userId: "1",
     createdAt: serverTimestamp(),

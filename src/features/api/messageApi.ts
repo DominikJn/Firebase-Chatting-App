@@ -43,7 +43,13 @@ export const messageApi = basicApi.injectEndpoints({
               >;
               switch (change.type) {
                 case "added":
-                  draft.push({ ...doc.data() });
+                  draft.push({ ...doc.data(), id: doc.id });
+                  break;
+                case "modified":
+                  const index = draft.findIndex((item) => item.id === doc.id);
+                  if (index !== -1) {
+                    draft[index] = { ...doc.data(), id: doc.id };
+                  }
                   break;
               }
             });
@@ -71,6 +77,29 @@ export const messageApi = basicApi.injectEndpoints({
             lastMessageTimestamp: serverTimestamp(),
           });
           return { data: docRef.id };
+        } catch (error: any) {
+          return { error };
+        }
+      },
+    }),
+
+    editMessage: builder.mutation<
+      string,
+      { message: NormalMessageData; chatId: string }
+    >({
+      async queryFn({ message, chatId }) {
+        try {
+          const chatMessagesRef = doc(
+            db,
+            "chats",
+            chatId,
+            "messages",
+            message.id
+          );
+
+          await updateDoc(chatMessagesRef, message);
+
+          return { data: "User doc updated!" };
         } catch (error: any) {
           return { error };
         }
@@ -117,6 +146,7 @@ export const {
   useGetChatMessagesQuery,
   useGetChatFilesQuery,
   useSendMessageMutation,
+  useEditMessageMutation,
   useUploadFileMutation,
   useUpdateUnseenByMutation,
 } = messageApi;

@@ -1,7 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { GoFileDirectoryFill } from "react-icons/go";
-import File from "./File";
+import { useMessageEditor } from "../context/MessageEditContext";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import { useEditMessageMutation } from "../../features/api/messageApi";
+import MessagePreview from "./MessagePreview";
+import NormalMessageData from "../../types/message/NormalMessageData";
 
 interface MessageFormProps {
   handleMessageFormSubmit: (message: string, file: File) => Promise<void>;
@@ -12,14 +17,49 @@ const MessageForm: React.FC<MessageFormProps> = ({
 }) => {
   const [message, setMessage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
+  const { selectedMessageToEdit, clearSelectedMessageToEdit } =
+    useMessageEditor();
+
+  const [editMessage] = useEditMessageMutation();
+  const selectedChatId = useSelector(
+    (state: RootState) => state.selectedChatId.value
+  );
+  console.log(selectedChatId);
+
+  // prefill the form with the selected message to edit if it is selected, else clear it
+  useEffect(() => {
+    if (selectedMessageToEdit) {
+      setMessage(selectedMessageToEdit.text);
+    } else {
+      clearSelectedMessageToEdit();
+    }
+  }, [selectedMessageToEdit]);
+
+  //exit message edition mode when choosing new file
+  useEffect(() => {
+    clearSelectedMessageToEdit();
+    if (selectedMessageToEdit) setMessage("");
+  }, [file, setFile]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
-    if (message || file) {
-      handleMessageFormSubmit(message, file as File);
+    if (selectedMessageToEdit) {
+      editMessage({
+        message: {
+          ...selectedMessageToEdit,
+          text: message,
+          isEdited: true,
+        } as NormalMessageData,
+        chatId: selectedChatId || "",
+      });
+    } else {
+      if (message || file) {
+        handleMessageFormSubmit(message, file as File);
+      }
     }
     setMessage("");
     setFile(null);
+    clearSelectedMessageToEdit();
   }
 
   return (
@@ -27,19 +67,9 @@ const MessageForm: React.FC<MessageFormProps> = ({
       onSubmit={(e) => handleSubmit(e)}
       className="h-[60px] bg-slate-900 p-2 flex justify-between items-center gap-6 relative"
     >
-      {file && (
-        <div
-          data-testid="file-view"
-          className="absolute bottom-[100%] bg-slate-900 text-white p-4 w-1/2 flex justify-between"
-        >
-          <div className="w-1/5 h-auto">
-            <File file={{ type: file.type, url: URL.createObjectURL(file) }} />
-            <span>{file.name}</span>
-          </div>
-          <button className="text-4xl" onClick={() => setFile(null)}>
-            X
-          </button>
-        </div>
+      {file && <MessagePreview file={file} setFile={setFile} />}
+      {selectedMessageToEdit && (
+        <MessagePreview text={selectedMessageToEdit.text} setFile={setFile} />
       )}
       <input
         type="text"

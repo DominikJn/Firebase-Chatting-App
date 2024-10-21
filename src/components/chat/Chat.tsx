@@ -21,6 +21,7 @@ import { v4 } from "uuid";
 import { useGetChatByIdQuery } from "../../features/api/chatApi";
 import UserDocData from "../../types/UserDocData";
 import handleChatName from "../../utils/handleChatName";
+import { MessageEditProvider } from "../context/MessageEditContext";
 
 type UploadedFileData = {
   data: { type: string; url: string };
@@ -60,6 +61,7 @@ const Chat: React.FC = () => {
       })) as UploadedFileData);
     //add new message doc
     const messageData: NormalMessageData = {
+      id: "",
       createdAt: serverTimestamp(),
       text: message,
       type: "normal",
@@ -90,12 +92,14 @@ const Chat: React.FC = () => {
           areOptionsActive={areOptionsActive}
           toggleChatOptions={toggleChatOptions}
         />
-        {areOptionsActive ? (
-          <>{chat && <ChatOptions chat={chat} />}</>
-        ) : (
-          <MessageContainer />
-        )}
-        <MessageForm handleMessageFormSubmit={handleMessageFormSubmit} />
+        <MessageEditProvider>
+          {areOptionsActive ? (
+            <>{chat && <ChatOptions chat={chat} />}</>
+          ) : (
+            <MessageContainer />
+          )}
+          <MessageForm handleMessageFormSubmit={handleMessageFormSubmit} />
+        </MessageEditProvider>
       </div>
     </article>
   );

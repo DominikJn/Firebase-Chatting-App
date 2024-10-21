@@ -7,6 +7,7 @@ import { useGetChatMessagesQuery } from "../../features/api/messageApi";
 import { useGetUserQuery } from "../../features/api/userApi";
 import { testUserDocData } from "../mocks/testUserDocData";
 import { spammedTestMessages, testMessages } from "../mocks/testMessages";
+import { MessageEditProvider } from "../../components/context/MessageEditContext";
 
 vi.mock("../../features/api/messageApi");
 vi.mock("../../features/api/userApi");
@@ -14,7 +15,9 @@ vi.mock("../../features/api/userApi");
 const MessageContainerMock = () => {
   return (
     <Provider store={store}>
-      <MessageContainer />
+      <MessageEditProvider>
+        <MessageContainer />
+      </MessageEditProvider>
     </Provider>
   );
 };

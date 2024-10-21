@@ -10,6 +10,7 @@ import { spammedTestMessages } from "../mocks/testMessages";
 import userEvent from "@testing-library/user-event";
 import { serverTimestamp } from "firebase/firestore";
 import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
+import { MessageEditProvider } from "../../components/context/MessageEditContext";
 
 vi.mock("../../features/api/userApi");
 vi.mock("../../features/api/messageApi");
@@ -18,7 +19,9 @@ vi.mock("../../features/api/chatApi");
 const ChatMock = () => {
   return (
     <Provider store={store}>
-      <Chat />
+      <MessageEditProvider>
+        <Chat />
+      </MessageEditProvider>
     </Provider>
   );
 };
@@ -64,6 +67,7 @@ describe("Chat", () => {
     await user.click(sendMessageButton);
 
     const newMessage = {
+      id: "",
       createdAt: serverTimestamp(),
       text: "She is muh queen!!",
       type: "normal",

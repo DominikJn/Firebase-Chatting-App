@@ -20,6 +20,7 @@ import {
   useUpdateUserMutation,
 } from "../../features/api/userApi";
 import {
+  useEditMessageMutation,
   useGetChatMessagesQuery,
   useSendMessageMutation,
   useUpdateUnseenByMutation,
@@ -41,6 +42,7 @@ export const setupRtkQueryMocks = ({
   acceptInvite = vi.fn(),
   rejectInvite = vi.fn(),
   sendInvite = vi.fn(),
+  editMessage = vi.fn(),
 } = {}) => {
   const file = new File(["hello"], "hello.png", { type: "image/png" });
 
@@ -66,4 +68,5 @@ export const setupRtkQueryMocks = ({
   useAcceptInviteMutation.mockImplementation(() => [acceptInvite]);
   useRejectInviteMutation.mockImplementation(() => [rejectInvite]);
   useSendInviteMutation.mockImplementation(() => [sendInvite]);
+  useEditMessageMutation.mockImplementation(() => [editMessage]);
 };
