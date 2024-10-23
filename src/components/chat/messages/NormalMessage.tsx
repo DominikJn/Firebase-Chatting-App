@@ -4,28 +4,53 @@ import { useGetUserQuery } from "../../../features/api/userApi";
 import File from "../File";
 import UserDocData from "../../../types/UserDocData";
 import { MdModeEdit } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import { useMessageEditor } from "../../context/MessageEditContext";
+import {
+  useDeleteFileMutation,
+  useDeleteMessageMutation,
+} from "../../../features/api/messageApi";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
+import extractFirestoreFilePathFromUrl from "../../../utils/extractFirestoreFilePathFromUrl";
 
 interface NormalMessageProps {
   message: NormalMessageData;
 }
 
 const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
-  const [editVisible, setEditVisible] = useState<boolean>(false);
+  const [iconsVisible, setIconsVisible] = useState<boolean>(false);
   const { editMessage } = useMessageEditor();
 
   const user = useGetUserQuery().data as UserDocData;
+  const [deleteMessage] = useDeleteMessageMutation();
+  const [deleteFile] = useDeleteFileMutation();
+  const selectedChatId =
+    useSelector((state: RootState) => state.selectedChatId.value) || "";
+
   const isCurrentUserMessage = message.userId === user.id;
 
   const showEdit = (): void => {
-    if (isCurrentUserMessage) setEditVisible(true);
+    if (isCurrentUserMessage) setIconsVisible(true);
   };
   const hideEdit = (): void => {
-    if (isCurrentUserMessage) setEditVisible(false);
+    if (isCurrentUserMessage) setIconsVisible(false);
+  };
+
+  const handleMessageDelete = () => {
+    //delete message doc
+    deleteMessage({
+      chatId: selectedChatId,
+      messageId: message.id,
+    });
+    //delete file from firebase storage if message contains its url
+    if (message.file?.url)
+      deleteFile(extractFirestoreFilePathFromUrl(message.file.url));
   };
 
   return (
     <div
+      data-testid="message"
       className={`flex flex-col w-1/2 text-xl px-4 pt-4 pb-8 rounded-lg shadow-lg break-all relative ${
         isCurrentUserMessage
           ? "bg-slate-800 text-white self-end"
@@ -42,12 +67,19 @@ const NormalMessage: React.FC<NormalMessageProps> = ({ message }) => {
       )}
       {message.file && <File file={message.file} />}
       <span>{message.text}</span>
-      <div className="absolute bottom-1 left-1">
-        {editVisible && (
-          <MdModeEdit
-            className="text-slate-400 hover:text-white hover:cursor-pointer"
-            onClick={() => editMessage(message)}
-          />
+      <div className="absolute bottom-1 left-1 flex gap-2">
+        {iconsVisible && (
+          <>
+            <MdModeEdit
+              className="text-slate-400 hover:text-white hover:cursor-pointer duration-100"
+              onClick={() => editMessage(message)}
+            />
+            <MdDelete
+              data-testid={`delete-message-${message.id}`}
+              className="text-slate-400 hover:text-red-700 hover:cursor-pointer duration-100"
+              onClick={() => handleMessageDelete()}
+            />
+          </>
         )}
       </div>
     </div>

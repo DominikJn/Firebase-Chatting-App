@@ -9,12 +9,18 @@ import {
   orderBy,
   arrayUnion,
   addDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db, fileDb } from "../../firebase-config";
 import type NormalMessageData from "../../types/message/NormalMessageData";
 import type ConfigMessageData from "../../types/message/ConfigMesageData";
 import { basicApi } from "./basicApi";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 
 export const messageApi = basicApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -49,6 +55,14 @@ export const messageApi = basicApi.injectEndpoints({
                   const index = draft.findIndex((item) => item.id === doc.id);
                   if (index !== -1) {
                     draft[index] = { ...doc.data(), id: doc.id };
+                  }
+                  break;
+                case "removed":
+                  const removeIndex = draft.findIndex(
+                    (item) => item.id === doc.id
+                  );
+                  if (removeIndex !== -1) {
+                    draft.splice(removeIndex, 1); // Remove the chat from the draft
                   }
                   break;
               }
@@ -106,6 +120,29 @@ export const messageApi = basicApi.injectEndpoints({
       },
     }),
 
+    deleteMessage: builder.mutation<
+      string,
+      { chatId: string; messageId: string }
+    >({
+      async queryFn({ chatId, messageId }) {
+        try {
+          const chatMessagesRef = doc(
+            db,
+            "chats",
+            chatId,
+            "messages",
+            messageId
+          );
+
+          await deleteDoc(chatMessagesRef);
+
+          return { data: "User doc updated!" };
+        } catch (error: any) {
+          return { error };
+        }
+      },
+    }),
+
     uploadFile: builder.mutation<
       { type: string; url: string },
       { path: string; file: File }
@@ -117,6 +154,19 @@ export const messageApi = basicApi.injectEndpoints({
           const url = await getDownloadURL(fileRef);
 
           return { data: { type: uploadedFile.metadata.contentType, url } };
+        } catch (error) {
+          return { error };
+        }
+      },
+    }),
+
+    deleteFile: builder.mutation<string, string>({
+      async queryFn(path) {
+        try {
+          const fileRef = ref(fileDb, path);
+          await deleteObject(fileRef);
+
+          return { data: "file deleted" };
         } catch (error) {
           return { error };
         }
@@ -147,6 +197,8 @@ export const {
   useGetChatFilesQuery,
   useSendMessageMutation,
   useEditMessageMutation,
+  useDeleteMessageMutation,
   useUploadFileMutation,
+  useDeleteFileMutation,
   useUpdateUnseenByMutation,
 } = messageApi;

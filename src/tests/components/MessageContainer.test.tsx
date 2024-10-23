@@ -4,12 +4,12 @@ import MessageContainer from "../../components/chat/MessageContainer";
 import { Provider } from "react-redux";
 import { store } from "../../store";
 import { useGetChatMessagesQuery } from "../../features/api/messageApi";
-import { useGetUserQuery } from "../../features/api/userApi";
-import { testUserDocData } from "../mocks/testUserDocData";
 import { spammedTestMessages, testMessages } from "../mocks/testMessages";
 import { MessageEditProvider } from "../../components/context/MessageEditContext";
+import { setupRtkQueryMocks } from "../mocks/rtkQueryHooks";
 
 vi.mock("../../features/api/messageApi");
+vi.mock("../../features/api/chatApi");
 vi.mock("../../features/api/userApi");
 
 const MessageContainerMock = () => {
@@ -24,7 +24,7 @@ const MessageContainerMock = () => {
 
 describe("MessageContainer", () => {
   beforeEach(() => {
-    useGetUserQuery.mockReturnValue({ data: testUserDocData });
+    setupRtkQueryMocks();
   });
 
   afterEach(() => {

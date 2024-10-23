@@ -20,6 +20,8 @@ import {
   useUpdateUserMutation,
 } from "../../features/api/userApi";
 import {
+  useDeleteFileMutation,
+  useDeleteMessageMutation,
   useEditMessageMutation,
   useGetChatMessagesQuery,
   useSendMessageMutation,
@@ -43,6 +45,8 @@ export const setupRtkQueryMocks = ({
   rejectInvite = vi.fn(),
   sendInvite = vi.fn(),
   editMessage = vi.fn(),
+  deleteMessage = vi.fn(),
+  deleteFile = vi.fn(),
 } = {}) => {
   const file = new File(["hello"], "hello.png", { type: "image/png" });
 
@@ -60,7 +64,9 @@ export const setupRtkQueryMocks = ({
   useAddChatMutation.mockImplementation(() => [addChat]);
   useUpdateUserMutation.mockImplementation(() => [updateUser]);
   useSendMessageMutation.mockImplementation(() => [sendMessage]);
+  useDeleteMessageMutation.mockImplementation(() => [deleteMessage]);
   useUploadFileMutation.mockImplementation(() => [uploadFile]);
+  useDeleteFileMutation.mockImplementation(() => [deleteFile]);
   useUpdateUnseenByMutation.mockImplementation(() => [updateUnseenBy]);
   useUpdateChatNameMutation.mockImplementation(() => [updateChatName]);
   useDeleteChatMutation.mockImplementation(() => [deleteChat]);
